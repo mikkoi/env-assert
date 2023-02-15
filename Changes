@@ -1,3 +1,5 @@
 Revision history for {{$dist->name}}
 
-{{$NEXT}}   * Initial version
+{{$NEXT}}
+
+0.001     2023-02-15 14:51:19+01:00 Europe/Stockholm   * Initial version
