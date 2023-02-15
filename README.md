@@ -41,3 +41,7 @@ include **envassert** in a docker container build.
 
     curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/master/script/envassert.packed
     chmod +x ./envassert
+
+### How to Create a FatPacker Executable
+
+    PERL5LIB=lib fatpack pack script/envassert >script/envassert.packed

@@ -11,10 +11,9 @@ our @EXPORT_OK = qw(
     assert
     report_errors
     file_to_desc
-    interpret_opts
     );
 our %EXPORT_TAGS = (
-    'all'          => [qw( assert report_errors file_to_desc interpret_opts )],
+    'all'          => [qw( assert report_errors file_to_desc )],
 );
 
 use English qw( -no_match_vars ); # Avoids regex performance penalty in perl 5.18 and earlier
@@ -32,25 +31,31 @@ use constant  {
     INDENT => q{    },
 };
 
+=pod
+
+=for stopwords params env
+
 =head1 STATUS
 
 Package Env::Assert is currently being developed so changes in the API are possible.
 
 
 =head1 SYNOPSIS
-    use Env::Assert qw( env_assert );
+    use Env::Assert qw( assert );
 
-    my %need = (
-        USER => 'random_user',
-        HOME => '/home/users/random_user',
+    my %want = (
+        options => {
+            exact => 1,
+        },
+        variables => {
+            USER => { regexp => '^[[:word:]]{1}$', required => 1 },
+        },
     );
-    my ($result) = assert( env =>, \%ENV, want => \%need, opts => {
-        break_at_first_error => 0
-        } );
-    if( ! $ok ) {
-        print "Errors in environment:\n";
-        foreach my $err (@{ $r->{errors} }) { printf "%s\n", $err; }
-        exit 1;
+    my %parameters;
+    $parameters{'break_at_first_error'} = 1;
+    my $r = assert( \%ENV, $desc, \%parameters );
+    if( ! $r->{'success'} ) {
+        say report_errors( $r->{'errors'} );
     }
 
 =head1 NOTES
@@ -58,6 +63,28 @@ Package Env::Assert is currently being developed so changes in the API are possi
 =cut
 
 =head1 FUNCTIONS
+
+No functions are automatically exported to the calling namespace.
+
+=head2 assert( \%env, \%want, \%params )
+
+Ensure your environment, parameter I<env> (hashref), matches with
+the environment description, parameter I<want> (hashref).
+Use parameter I<params> (hashref) to specify processing options.
+
+Supported params:
+
+=over 8
+
+=item break_at_first_error
+
+Verify environment only up until the first error.
+Then break and return with only that error.
+
+=back
+
+Return: hashref: { success => 1/0, errors => hashref, };
+
 
 =cut
 
@@ -81,7 +108,7 @@ sub assert {
             $success = 0;
             $errors{'variables'}->{ $var_name } = {
                 type => ENV_ASSERT_MISSING_FROM_ENVIRONMENT,
-                message => "Variable $var_name missing",
+                message => "Variable $var_name is missing from environment",
             };
             goto EXIT if( $params->{'break_at_first_error'} );
         }
@@ -100,7 +127,7 @@ sub assert {
                 $success = 0;
                 $errors{'variables'}->{ $var_name } = {
                     type => ENV_ASSERT_MISSING_FROM_DEFINITION,
-                    message => "Variable $var_name missing from definition",
+                    message => "Variable $var_name is missing from description",
                 };
                 goto EXIT if( $params->{'break_at_first_error'} );
             }
@@ -111,21 +138,34 @@ sub assert {
     return { success => $success, errors => \%errors, };
 }
 
+=head2 report_errors( \%errors )
+
+Report errors in a nicely formatted way.
+
+=cut
+
 sub report_errors {
     my ($errors) = @_;
-    ## no critic (InputOutput::RequireCheckedSyscalls)
-    say 'ERRORS:';
-    foreach my $error_area_name (keys %{ $errors }) {
-        say INDENT . $error_area_name . ': ';
-        foreach my $error_key (keys %{ $errors->{$error_area_name} }) {
-            say INDENT . INDENT . $error_key . ': ' . $errors->{$error_area_name}->{$error_key}->{'message'};
+    my $out = q{};
+    $out .= sprintf "ERRORS:\n";
+    foreach my $error_area_name (sort keys %{ $errors }) {
+        $out .= sprintf "%s%s:\n", INDENT, $error_area_name;
+        foreach my $error_key (sort keys %{ $errors->{$error_area_name} }) {
+            $out .= sprintf "%s%s: %s\n", INDENT . INDENT, $error_key,
+                $errors->{$error_area_name}->{$error_key}->{'message'};
         }
     }
-    return;
+    return $out;
 }
+
+=head2 file_to_desc( @rows )
+
+Extract an environment description from a F<.envdesc> file.
+
+=cut
+
 sub file_to_desc {
     my @rows = @_;
-    my %tada = ();
     my %desc = ( 'options' => {}, 'variables' => {}, );
     foreach (@rows) {
         # This is envassert meta command
@@ -138,7 +178,7 @@ sub file_to_desc {
             [[:space:]]{0,} $
             }msx
         ) {
-            my $opts = interpret_opts( $LAST_PAREN_MATCH{opts} );
+            my $opts = _interpret_opts( $LAST_PAREN_MATCH{opts} );
             foreach ( keys %{ $opts } ) {
                 $desc{'options'}->{$_} = $opts->{$_};
             }
@@ -169,7 +209,10 @@ sub file_to_desc {
     }
     return \%desc;
 }
-sub interpret_opts {
+
+# Private subroutines
+
+sub _interpret_opts {
     my ($opts_str) = @_;
     my @opts = split qr{
         [[:space:]]{0,} [,] [[:space:]]{0,}

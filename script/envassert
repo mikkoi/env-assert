@@ -48,13 +48,13 @@ sub main {
     close $fh or croak "Cannot close file '$env_desc_filename'";
 
     my $desc = file_to_desc( @env_desc_rows );
-    use Data::Dumper;
     my %parameters;
     $parameters{'break_at_first_error'} = $break_at_first_error
         if defined $break_at_first_error;
     my $r = assert( \%ENV, $desc, \%parameters );
     if( ! $r->{'success'} ) {
-        report_errors( $r->{'errors'} );
+        ## no critic (InputOutput::RequireCheckedSyscalls)
+        say report_errors( $r->{'errors'} );
         return 1;
     }
     return 0;

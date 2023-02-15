@@ -4,14 +4,15 @@ use strict;
 use warnings;
 use Test2::V0;
 
-use Env::Assert qw( :all );
+use Env::Assert qw( assert );
 
 use constant  {
     ENV_ASSERT_MISSING_FROM_ENVIRONMENT => 1,
     ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE => 2,
     ENV_ASSERT_MISSING_FROM_DEFINITION => 3,
 };
-subtest 'Internals' => sub {
+
+subtest 'Externals' => sub {
 
     #
     my %env = (
