@@ -147,7 +147,7 @@ Report errors in a nicely formatted way.
 sub report_errors {
     my ($errors) = @_;
     my $out = q{};
-    $out .= sprintf "ERRORS:\n";
+    $out .= sprintf "Environment Assert: ERRORS:\n";
     foreach my $error_area_name (sort keys %{ $errors }) {
         $out .= sprintf "%s%s:\n", INDENT, $error_area_name;
         foreach my $error_key (sort keys %{ $errors->{$error_area_name} }) {
