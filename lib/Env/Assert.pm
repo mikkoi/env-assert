@@ -4,7 +4,6 @@
 package Env::Assert;
 use strict;
 use warnings;
-use feature qw( say );
 
 use Exporter 'import';
 our @EXPORT_OK = qw(
