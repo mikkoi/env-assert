@@ -23,11 +23,11 @@ subtest 'Public Subroutine report_errors()' => sub {
         },
       },
     );
-    my $expected = <<~"END_OF_TEXT";
-      Environment Assert: ERRORS:
-          variables:
-              USER: Variable USER has invalid content
-      END_OF_TEXT
+    my $expected = <<END_OF_TEXT;
+Environment Assert: ERRORS:
+    variables:
+        USER: Variable USER has invalid content
+END_OF_TEXT
     my $out = report_errors( \%errors );
     is( $out, $expected, 'Errors output correct' );
   }
@@ -45,12 +45,12 @@ subtest 'Public Subroutine report_errors()' => sub {
         },
       },
     );
-    my $expected = <<~"END_OF_TEXT";
-      Environment Assert: ERRORS:
-          variables:
-              NEEDLESS_1: Variable NEEDLESS_1 is missing from definition
-              USER: Variable USER is missing from environment
-      END_OF_TEXT
+    my $expected = <<END_OF_TEXT;
+Environment Assert: ERRORS:
+    variables:
+        NEEDLESS_1: Variable NEEDLESS_1 is missing from definition
+        USER: Variable USER is missing from environment
+END_OF_TEXT
     my $out = report_errors( \%errors );
     is( $out, $expected, 'Errors output correct' );
   }
@@ -58,9 +58,9 @@ subtest 'Public Subroutine report_errors()' => sub {
   {
     my %errors = (
     );
-    my $expected = <<~"END_OF_TEXT";
-      Environment Assert: ERRORS:
-      END_OF_TEXT
+    my $expected = <<END_OF_TEXT;
+Environment Assert: ERRORS:
+END_OF_TEXT
     my $out = report_errors( \%errors );
     is( $out, $expected, 'Errors output correct' );
   }
