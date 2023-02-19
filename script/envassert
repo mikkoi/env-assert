@@ -171,4 +171,8 @@ when verifying.
 
 =back
 
+=head1 DEPENDENCIES
+
+No external dependencies outside Perl's standard distribution.
+
 =cut

@@ -61,6 +61,10 @@ Package Env::Assert is currently being developed so changes in the API are possi
 
 =cut
 
+=head1 DEPENDENCIES
+
+No external dependencies outside Perl's standard distribution.
+
 =head1 FUNCTIONS
 
 No functions are automatically exported to the calling namespace.
