@@ -36,7 +36,8 @@ use constant  {
 
 =head1 STATUS
 
-Package Env::Assert is currently being developed so changes in the API are possible.
+Package Env::Assert is currently being developed so changes in the API are possible,
+though not likely.
 
 
 =head1 SYNOPSIS
