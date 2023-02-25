@@ -10,7 +10,7 @@ with environment variables, matches with what you want.
 
 You can define your required environment in a file.
 Default file is **.envassert** but you can use any file.
-It is advantageous to use **envassert** for examnple when running
+It is advantageous to use **envassert** for example when running
 a container. If you check your environment for missing or
 wrongly defined environment variables at the beginning of
 the container run, your container will fail sooner instead
