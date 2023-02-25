@@ -148,7 +148,7 @@ Example:
 
     # Required env
     ## envassert (opts: exact=1)
-    FILENAME=^[[:word:]]{1,}$'
+    FILENAME=^[[:word:]]{1,}$
 
 Env var name is followed by a regular expression. The regexp is
 an extended Perl regular expression without quotation marks.
