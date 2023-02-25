@@ -41,6 +41,7 @@ though not likely.
 
 
 =head1 SYNOPSIS
+
     use Env::Assert qw( assert );
 
     my %want = (
