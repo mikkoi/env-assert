@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.006     2023-02-27 22:15:15+01:00 Europe/Stockholm
           * Clean up documentation.
           * Clean up dist.ini a little.
           * Use option auto_help in executable.
