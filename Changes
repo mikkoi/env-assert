@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          * Update envassert.self-contained url.
 
 0.005     2023-02-25 19:28:40+01:00 Europe/Stockholm
           * Fix typos (Ivan Bessarabov <ivan@bessarabov.ru>)
