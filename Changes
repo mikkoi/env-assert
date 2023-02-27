@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          * Use option auto_version in executable.
           * Move fatpacked executable to root.
           * Update dist.ini with ExecDir to `script`.
           * Update envassert.self-contained url.

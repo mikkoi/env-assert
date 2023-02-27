@@ -24,6 +24,7 @@ Options:
 
     --help
     --man
+    --version
     --break-at-error
     --env-description
 
