@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          * Clean up documentation.
           * Clean up dist.ini a little.
           * Use option auto_help in executable.
           * Use option auto_version in executable.

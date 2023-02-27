@@ -59,13 +59,16 @@ though not likely.
         say report_errors( $r->{'errors'} );
     }
 
+
 =head1 NOTES
 
 =cut
 
+
 =head1 DEPENDENCIES
 
 No external dependencies outside Perl's standard distribution.
+
 
 =head1 FUNCTIONS
 

@@ -63,10 +63,8 @@ exit main(@ARGV);
 
 __END__
 
-=head1 envassert
+=pod
 
-Ensure that the environment variables match
-what is requested, or abort.
 
 =head1 SYNOPSIS
 
@@ -78,21 +76,6 @@ Options:
     --version
     --break-at-error
     --env-description
-
-=head2 CLI interface without dependencies
-
-The F<envassert> command is also available
-as self contained executable.
-You can download it and run it as it is without
-additional installation of CPAN packages.
-Of course, you still need Perl, but Perl comes with any
-normal Linux installation.
-
-This can be convenient if you want to, for instance,
-include F<envassert> in a docker container build.
-
-    curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/main/envassert.self-contained
-    chmod +x ./envassert
 
 
 =head1 OPTIONS
@@ -123,6 +106,7 @@ Default: .envdesc
 
 =back
 
+
 =head1 DESCRIPTION
 
 B<envassert> checks that your runtime environment, as defined
@@ -130,11 +114,35 @@ with environment variables, matches with what you want.
 
 You can define your required environment in a file.
 Default file is F<.envassert> but you can use any file.
+
 It is advantageous to use B<envassert> for examnple when running
 a container. If you check your environment for missing or
 wrongly defined environment variables at the beginning of
 the container run, your container will fail sooner instead
 of in a later point in execution when the variables are needed.
+
+=head2 Errors
+
+There are three kinds of errors:
+
+=over 8
+
+=item ENV_ASSERT_MISSING_FROM_ENVIRONMENT
+
+"Variable <var_name> is missing from environment"
+
+=item ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
+
+"Variable <var_name> has invalid content"
+
+=item ENV_ASSERT_MISSING_FROM_DEFINITION
+
+"Variable <var_name> is missing from description"
+
+This error will only be reported if you have set
+the special option B<exact>. See below.
+
+=back
 
 =head2 Environment Description Language
 
@@ -174,6 +182,31 @@ are described in this file. Any unknown env var causes an error
 when verifying.
 
 =back
+
+=head2 CLI interface without dependencies
+
+The F<envassert> command is also available
+as self contained executable.
+You can download it and run it as it is without
+additional installation of CPAN packages.
+Of course, you still need Perl, but Perl comes with any
+normal Linux installation.
+
+This can be convenient if you want to, for instance,
+include F<envassert> in a docker container build.
+
+    curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/main/envassert.self-contained
+    chmod +x ./envassert
+
+
+=head1 EXAMPLES
+
+    $ envassert
+    Environment Assert: ERRORS:
+        variables:
+            FIRST_VAR: Variable FIRST_VAR is missing from environment
+            FOURTH_VAR: Variable FOURTH_VAR is missing from environment
+
 
 =head1 DEPENDENCIES
 
