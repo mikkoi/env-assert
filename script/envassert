@@ -3,7 +3,6 @@
 ## no critic (ValuesAndExpressions::ProhibitConstantPragma)
 use strict;
 use warnings;
-use feature qw( say );
 use open ':std', IO => ':encoding(UTF-8)';
 
 # ABSTRACT: Ensure that the environment variables match what you need, or abort.
@@ -52,8 +51,8 @@ sub main {
         if defined $break_at_first_error;
     my $r = assert( \%ENV, $desc, \%parameters );
     if( ! $r->{'success'} ) {
-        ## no critic (InputOutput::RequireCheckedSyscalls)
-        say report_errors( $r->{'errors'} );
+        print {*STDOUT} report_errors( $r->{'errors'} )
+            or croak 'Cannot print errors to STDOUT';
         return 1;
     }
     return 0;
