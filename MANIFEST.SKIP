@@ -18,3 +18,4 @@ local/
 Session.vim
 dzil-generated-cpanfile
 README.md
+envassert.self-contained

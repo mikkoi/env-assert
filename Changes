@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
           * Replace say with print
+          * Add envassert.self-contained to MANIFEST.SKIP.
 
 0.006     2023-02-27 22:15:15+01:00 Europe/Stockholm
           * Clean up documentation.
