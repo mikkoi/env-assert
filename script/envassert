@@ -30,10 +30,12 @@ use constant {
 my $man = 0;
 my $break_at_first_error;
 my $env_desc_filename = ENV_DESC_FILENAME;
+my $exact;
 GetOptions(
     'man' => \$man,
     'break-at-first-error|b!' => \$break_at_first_error,
     'env-description|e=s' => , \$env_desc_filename,
+    'exact|x!' => \$exact,
 ) or pod2usage(2);
 pod2usage(-exitval => 0, -verbose => 2) if $man;
 
@@ -49,6 +51,8 @@ sub main {
     my %parameters;
     $parameters{'break_at_first_error'} = $break_at_first_error
         if defined $break_at_first_error;
+    $desc->{'options'}->{'exact'} = $exact
+        if defined $exact;
     my $r = assert( \%ENV, $desc, \%parameters );
     if( ! $r->{'success'} ) {
         print {*STDOUT} report_errors( $r->{'errors'} )
@@ -102,6 +106,12 @@ Default: false
 
 Path to file which has the environment description.
 Default: .envdesc
+
+=item B<-x>, B<--exact>
+
+Fail check if environment contains variables not defined in environment descript.
+This option will override the equivalent option in .envdesc file.
+Default: false
 
 =back
 
