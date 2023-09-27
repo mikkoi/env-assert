@@ -9,7 +9,7 @@ what is requested, or abort.
 with environment variables, matches with what you want.
 
 You can define your required environment in a file.
-Default file is **.envassert** but you can use any file.
+Default file is **.envdesc** but you can use any file.
 It is advantageous to use **envassert** for example when running
 a container. If you check your environment for missing or
 wrongly defined environment variables at the beginning of
