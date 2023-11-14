@@ -28,7 +28,13 @@ Options:
     --break-at-error
     --env-description
 
-## CLI interface without dependencies
+## INSTALLATION
+
+### Packaging
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/env-assert.svg)](https://repology.org/project/env-assert/versions)
+
+### CLI interface without dependencies
 
 The **envassert** command is also available
 as self contained executable.
