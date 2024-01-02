@@ -42,7 +42,7 @@ though not likely.
 
 =head1 SYNOPSIS
 
-    use Env::Assert qw( assert );
+    use Env::Assert qw( assert report_errors );
 
     my %want = (
         options => {
@@ -54,9 +54,9 @@ though not likely.
     );
     my %parameters;
     $parameters{'break_at_first_error'} = 1;
-    my $r = assert( \%ENV, $desc, \%parameters );
+    my $r = assert( \%ENV, \%want, \%parameters );
     if( ! $r->{'success'} ) {
-        say report_errors( $r->{'errors'} );
+        print report_errors( $r->{'errors'} );
     }
 
 
