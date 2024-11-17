@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          * Add $VERSION to library and executable files.
 
 0.010     2024-01-02 20:32:48+01:00 Europe/Stockholm
           * Fix errors in SYNOPSIS. (Ron Savage <ron@savage.net.au>)
