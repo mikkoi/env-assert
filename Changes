@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Add .github dir.
             * Add files CONTRIBUTING.md, CODE_OF_CONDUCT.md and SECURITY.md.
             * Clean dist.ini.
             * Remove fatpacker instruction from README.

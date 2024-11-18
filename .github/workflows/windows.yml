@@ -1,0 +1,106 @@
+name: windows
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  workflow_dispatch:
+#  pull_request:
+
+jobs:
+  perl:
+    # name: Perl Perl ${{ matrix.perl }} on ${{ matrix.os }}
+    # https://justatheory.com/2021/11/cache-perl-github-workflows/
+    env:
+      # some plugins still needs this to run their tests...
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 1
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 1
+
+    # strategy:
+    #   matrix:
+    #    os: [ windows ]
+    #    perl: [ 'latest' ]
+    runs-on: windows-latest
+    # runs-on: ${{ matrix.os }}-latest
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v4
+
+    # There is no strategy/matrix because Windows container has its own
+    # Strawberry Perl and we go with whatever version it is.
+
+      # - id: cache-cpan
+      #   name: Cache CPAN modules
+      #   uses: actions/cache@v4
+      #   # env:
+      #   #   cache-name: cache-cpan-modules
+      #   with:
+      #     # npm cache files are stored in `~/.npm` on Linux/macOS
+      #     # path: ~/.cpan
+      #     # path: local
+      #     path: C:/Strawberry/perl/site/lib
+      #     # key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      #     # key: perl-${{ steps.perl.outputs.perl-hash }}
+      #     key: static
+      #     # restore-keys: |
+      #     #   ${{ runner.os }}-build-${{ env.cache-name }}-
+      #     #   ${{ runner.os }}-build-
+      #     #   ${{ runner.os }}-
+      - id: explore-tools-perl
+        name: Explore Tools Perl
+        run: |
+          perl -V
+      - id: explore-tools-cpan
+        name: Explore Tools Cpan
+        run: |
+          cpan -V
+      - id: explore-filesystem
+        name: Explore Filesystem
+        run: |
+          dir
+          dir C:\
+          dir C:\Users
+          dir C:/Strawberry/perl/site/lib
+          dir ..
+          dir ..\..
+          dir D:\
+          # dir .cpan
+          # dir .cpan\build
+      - id: explore-whoami
+        name: Explore Who Am I
+        run: |
+          whoami
+      - id: explore-environment
+        name: Explore Environment
+        run: |
+          Get-ChildItem env: | Format-Table -Wrap
+      - id: install-dzil
+        name: Install Dist::Zilla
+        # -T Do not test modules. Simply install them.
+        run: |
+          cpan -T Dist::Zilla
+      # # - id: 
+      #   name: Install Dependencies
+      # #   #run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
+      # #   run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
+      # # - id: 
+      #   name: Makefile.PL
+      # #   run: perl Makefile.PL
+      - id: install-dzil-authordeps
+        name: Install Dist::Zilla Author Dependencies
+        run: |
+          dzil authordeps --missing --versions | cpanm --verbose --force --notest || true
+      - id: install-deps
+        name: Install Dependencies
+        run: |
+          dzil listdeps --missing --develop --requires --recommends --suggests --version | cpanm --verbose --force --notest || true
+      - id: run-tests
+        name: Run Tests
+        run: |
+          prove -lrv t

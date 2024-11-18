@@ -1,0 +1,53 @@
+name: linux
+
+on:
+  push:
+    branches:
+      - '*'
+  #   tags-ignore:
+  #     - '*'
+  workflow_dispatch:
+#  pull_request:
+
+jobs:
+  perl:
+    env:
+      # some plugins still needs this to run their tests...
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 1
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 1
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - 'latest'
+          - '5.34'
+          - '5.28'
+          - '5.20'
+          # - '5.18' No dzil
+          # - '5.16' No dzil
+          # - '5.10' No dzil
+
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: perl -V
+        run: perl -V
+      # - name: Install Dependencies
+      #   #run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
+      #   run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
+      # - name: Makefile.PL
+      #   run: perl Makefile.PL
+      - name: Install Dist::Zilla Author Dependencies
+        run: dzil authordeps --missing --versions | cpanm --verbose --force --notest || true
+      - name: Install Dependencies
+        run: dzil listdeps --missing --develop --requires --recommends --suggests --version | cpanm --verbose --force --notest || true
+      - name: Run Tests
+        run: prove -lrv t

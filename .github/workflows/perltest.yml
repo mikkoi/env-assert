@@ -1,0 +1,15 @@
+name: CI
+
+on:
+#  push:
+#    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: mikkoi/github_workflows/.github/workflows/cpan-test.yml@main
+
+  coverage:
+    uses: mikkoi/github_workflows/.github/workflows/cpan-coverage.yml@main
