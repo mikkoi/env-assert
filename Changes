@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Use @Filter to use PluginBundle::MIKKOI.
             * Readjust Changes file.
             * Bump version.
             * Add BumpVersionAfterRelease and Git::Commit to dist.ini.
