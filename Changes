@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Clean dist.ini.
             * Remove fatpacker instruction from README.
             * Add new LICENSE files and change README.md.
             * Use @Filter to use PluginBundle::MIKKOI.
