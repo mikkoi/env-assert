@@ -49,10 +49,6 @@ include **envassert** in a docker container build.
     curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/main/envassert.self-contained
     chmod +x ./envassert
 
-### How to Create a FatPacker Executable
-
-    PERL5LIB=lib fatpack pack script/envassert >envassert.self-contained
-
 # LICENSE
 
 This software is copyright (c) 2023 by Mikko Koivunalho.
