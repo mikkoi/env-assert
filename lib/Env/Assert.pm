@@ -236,3 +236,14 @@ sub _interpret_opts {
 }
 
 1;
+
+__END__
+
+=head1 SEE ALSO
+
+L<Env::Dot> is a "sister" to Env::Assert.
+Read environment variables from a F<.env> file directly into you program.
+There is also script F<envdot> which can turn F<.env> file's content
+into environment variables for different shells.
+
+=cut
