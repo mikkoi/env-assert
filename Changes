@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.011_001 2025-05-24 18:10:35+02:00 Europe/Stockholm (TRIAL RELEASE)
             * Add SEE ALSO chapters to Env::Assert and script/envassert.
             * Add .github dir.
             * Add files CONTRIBUTING.md, CODE_OF_CONDUCT.md and SECURITY.md.
