@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Change Security Policy to use CPANSec's template.
             * Add SEE ALSO chapters to Env::Assert and script/envassert.
             * Add .github dir.
             * Add files CONTRIBUTING.md, CODE_OF_CONDUCT.md and SECURITY.md.
