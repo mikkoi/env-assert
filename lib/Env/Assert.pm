@@ -20,8 +20,7 @@ use Carp;
 
 # ABSTRACT: Ensure that the environment variables match what you need, or abort.
 
-our $VERSION = '0.011_001'; # TRIAL
-$VERSION =~ tr/_//d;
+our $VERSION = '0.011';
 
 use constant  {
     ENV_ASSERT_MISSING_FROM_ENVIRONMENT => 1,

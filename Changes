@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Bump version to 0.011 and remove underscore hack.
             * Change Security Policy to use CPANSec's template.
             * Add SEE ALSO chapters to Env::Assert and script/envassert.
             * Add .github dir.
