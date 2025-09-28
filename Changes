@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.011     2025-09-28 09:32:02+02:00 Europe/Stockholm
             * Bump version to 0.011 and remove underscore hack.
             * Change Security Policy to use CPANSec's template.
             * Add SEE ALSO chapters to Env::Assert and script/envassert.
