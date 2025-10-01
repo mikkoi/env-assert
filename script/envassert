@@ -68,6 +68,11 @@ __END__
 
 =pod
 
+=for stopwords env envassert envdesc
+
+=head1 NAME
+
+envassert - Ensure that the environment variables match what you need, or abort.
 
 =head1 SYNOPSIS
 
@@ -109,7 +114,7 @@ Default: .envdesc
 
 =item B<-x>, B<--exact>
 
-Fail check if environment contains variables not defined in environment descript.
+Fail check if environment contains variables not defined in environment description.
 This option will override the equivalent option in .envdesc file.
 Default: false
 
@@ -124,7 +129,7 @@ with environment variables, matches with what you want.
 You can define your required environment in a file.
 Default file is F<.envassert> but you can use any file.
 
-It is advantageous to use B<envassert> for examnple when running
+It is advantageous to use B<envassert> for example when running
 a container. If you check your environment for missing or
 wrongly defined environment variables at the beginning of
 the container run, your container will fail sooner instead
