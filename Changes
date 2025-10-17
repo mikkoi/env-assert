@@ -1,7 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-            * Add badges for license, cpan and kwalitee to Readme.
+            * Add badges for license, CPAN and kwalitee to Readme.
             * Fix typos and add stopwords.
 
 0.011     2025-09-28 09:32:02+02:00 Europe/Stockholm
