@@ -1,3 +1,7 @@
+[![License: Artistic-2.0](https://img.shields.io/badge/License-Perl-0298c3.svg)](https://opensource.org/licenses/Artistic-2.0)
+[![CPAN Version](https://img.shields.io/cpan/v/Env-Assert)](https://metacpan.org/dist/Env-Assert)
+[![kwalitee](https://cpants.cpanauthors.org/dist/Env-Assert.svg)](https://cpants.cpanauthors.org/dist/Env-Assert)
+
 # envassert
 
 Ensure that the environment variables match
