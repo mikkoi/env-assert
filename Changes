@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Rename dir script/ to bin/ to match with Dist::Zilla::Plugin::ExecDir defaults.
             * Add badges for license, CPAN and kwalitee to Readme.
             * Fix typos and add stopwords.
 
