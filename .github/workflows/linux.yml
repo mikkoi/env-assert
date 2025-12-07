@@ -54,5 +54,6 @@ jobs:
       - id: install-dzil-deps
         name: Install Dependencies
         run: dzil listdeps --missing --develop --requires --recommends --suggests --version | cpanm --verbose --force --notest || true
-      - name: Run Tests
-        run: prove -lrv t
+      - id: run-test-suite
+        name: Run Tests
+        run: dzil test --all --test-verbose
