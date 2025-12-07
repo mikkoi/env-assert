@@ -107,4 +107,4 @@ jobs:
       - id: run-tests
         name: Run Tests
         run: |
-          prove -lrv t
+          dzil test --all --test-verbose
