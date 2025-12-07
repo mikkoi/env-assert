@@ -37,18 +37,22 @@ jobs:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
 
     steps:
-      - name: Checkout
+      - id: checkout
+        name: Checkout
         uses: actions/checkout@v4
-      - name: perl -V
+      - id: explore-tools-perl
+        name: perl -V
         run: perl -V
       # - name: Install Dependencies
       #   #run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
       #   run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
       # - name: Makefile.PL
       #   run: perl Makefile.PL
-      - name: Install Dist::Zilla Author Dependencies
+      - id: install-dzil-author-deps
+        name: Install Dist::Zilla Author Dependencies
         run: dzil authordeps --missing --versions | cpanm --verbose --force --notest || true
-      - name: Install Dependencies
+      - id: install-dzil-deps
+        name: Install Dependencies
         run: dzil listdeps --missing --develop --requires --recommends --suggests --version | cpanm --verbose --force --notest || true
       - name: Run Tests
         run: prove -lrv t
