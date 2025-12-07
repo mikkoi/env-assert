@@ -82,6 +82,7 @@ jobs:
           whoami
       - id: explore-environment
         name: Explore Environment
+        shell: pwsh
         run: |
           Get-ChildItem env: | Format-Table -Wrap
       - id: install-dzil
