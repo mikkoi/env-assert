@@ -87,9 +87,8 @@ jobs:
           Get-ChildItem env: | Format-Table -Wrap
       - id: install-dzil
         name: Install Dist::Zilla
-        # -T Do not test modules. Simply install them.
         run: |
-          cpan -T Dist::Zilla
+          cpanm --verbose --force --notest Dist::Zilla
       # # - id: 
       #   name: Install Dependencies
       # #   #run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
