@@ -60,6 +60,10 @@ jobs:
         name: Explore Tools Cpan
         run: |
           cpan -V
+      - id: explore-tools-cpanm
+        name: Explore Tools Cpanm
+        run: |
+          cpanm -V
       - id: explore-filesystem
         name: Explore Filesystem
         run: |
