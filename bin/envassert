@@ -42,9 +42,7 @@ pod2usage(-exitval => 0, -verbose => 2) if $man;
 sub main {
 
     open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
-    my $env_desc_file = q{};
-    my @env_desc_rows;
-    while( <$fh> ) { chomp; push @env_desc_rows, $_; }
+    my @env_desc_rows = <$fh>;
     close $fh or croak "Cannot close file '$env_desc_filename'";
 
     my $desc = file_to_desc( @env_desc_rows );
