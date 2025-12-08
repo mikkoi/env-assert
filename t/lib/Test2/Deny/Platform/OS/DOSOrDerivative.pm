@@ -1,4 +1,4 @@
-package Test2::Deny::Platform::DOSOrDerivative;
+package Test2::Deny::Platform::OS::DOSOrDerivative;
 use strict;
 use warnings;
 
@@ -8,12 +8,12 @@ our $VERSION = '0.000160';
 
 use English qw( -no_match_vars ) ;  # Avoids regex performance
 
-require Test2::Require::Platform::DOSOrDerivative;
+require Test2::Require::Platform::OS::DOSOrDerivative;
 
 sub skip {
     my $class = shift;
 
-    if (! Test2::Require::Platform::DOSOrDerivative::IS_PLATFORM()) {
+    if (! Test2::Require::Platform::OS::DOSOrDerivative::IS_PLATFORM()) {
         return;
     } else {
         return (__PACKAGE__ =~ m/^Test2::(.*)$/msx)[0];
@@ -30,7 +30,7 @@ __END__
 
 =head1 NAME
 
-Test2::Deny::Platform::DOSOrDerivative - Only run a test if the current platform is not a Unix.
+Test2::Deny::Platform::OS::DOSOrDerivative - Only run a test if the current platform is not a Unix.
 
 =head1 DESCRIPTION
 
@@ -41,7 +41,7 @@ the operating system name.
 
 =head1 SYNOPSIS
 
-    use Test2::Deny::Platform::DOSOrDerivative;
+    use Test2::Deny::Platform::OS::DOSOrDerivative;
     ...
     done_testing;
 

@@ -16,7 +16,7 @@ use lib "$lib_path";
 use Test2::V0;
 use Test::Script 1.28;
 
-use Test2::Deny::Platform::DOSOrDerivative;
+use Test2::Deny::Platform::OS::DOSOrDerivative;
 
 subtest 'Script compiles' => sub {
     script_compiles('bin/envassert');

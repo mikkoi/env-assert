@@ -1,4 +1,4 @@
-package Test2::Require::Platform::Unix;
+package Test2::Require::Platform::OS::Unix;
 use strict;
 use warnings;
 
@@ -55,7 +55,7 @@ __END__
 
 =head1 NAME
 
-Test2::Require::Platform::Unix - Only run a test if the current platform is a Unix.
+Test2::Require::Platform::OS::Unix - Only run a test if the current platform is a Unix.
 
 =head1 DESCRIPTION
 
@@ -66,7 +66,7 @@ the operating system name.
 
 =head1 SYNOPSIS
 
-    use Test2::Require::Platform::Unix;
+    use Test2::Require::Platform::OS::Unix;
     ...
     done_testing;
 
