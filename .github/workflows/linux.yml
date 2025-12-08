@@ -31,10 +31,13 @@ jobs:
           - '5.20'
           # - '5.18' No dzil
           # - '5.16' No dzil
+          # - '5.14' No dzil
           # - '5.10' No dzil
 
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
+      # https://hub.docker.com/r/perldocker/perl-tester
+      # https://github.com/Perl/docker-perl-tester
 
     steps:
       - id: checkout
@@ -48,12 +51,29 @@ jobs:
       #   run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
       # - name: Makefile.PL
       #   run: perl Makefile.PL
-      - id: install-dzil-author-deps
+      - id: list-dzil-authordeps-with-verbosity
+        name: List Dist::Zilla Author Dependencies With Verbosity
+        run: |
+          dzil --verbose authordeps --cpanm-versions
+      - id: install-dzil-authordeps
         name: Install Dist::Zilla Author Dependencies
-        run: dzil authordeps --missing --versions | cpanm --verbose --force --notest || true
+        run: |
+          dzil --verbose authordeps --cpanm-versions \
+          | cpanm --verbose --force --notest
+      - id: list-deps-with-verbosity
+        name: List Dependencies With Verbosity
+        run: |
+          dzil --verbose listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }}
       - id: install-dzil-deps
         name: Install Dependencies
-        run: dzil listdeps --missing --develop --requires --recommends --suggests --version | cpanm --verbose --force --notest || true
+        run: |
+          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }} \
+          | cpanm --verbose --force --notest || true
+      - id: build-project-and-explore
+        name: Build Project And Explore
+        run: |
+          dzil --verbose build \
+          && tree -af -I '\.git'
       - id: run-test-suite
         name: Run Tests
-        run: dzil test --all --test-verbose
+        run: dzil --verbose test --all --test-verbose

@@ -96,15 +96,31 @@ jobs:
       # # - id: 
       #   name: Makefile.PL
       # #   run: perl Makefile.PL
+      - id: list-dzil-authordeps-with-verbosity
+        name: List Dist::Zilla Author Dependencies With Verbosity
+        run: |
+          dzil --verbose authordeps --cpanm-versions
       - id: install-dzil-authordeps
         name: Install Dist::Zilla Author Dependencies
         run: |
-          dzil authordeps --missing --versions | cpanm --verbose --force --notest || true
-      - id: install-deps
+          dzil authordeps --cpanm-versions \
+          | cpanm --verbose --force --notest || true
+      - id: list-deps-with-verbosity
+        name: List Dependencies With Verbosity
+        run: |
+          dzil --verbose listdeps --develop --requires --recommends --suggests --version
+          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core
+      - id: install-dzil-deps
         name: Install Dependencies
         run: |
-          dzil listdeps --missing --develop --requires --recommends --suggests --version | cpanm --verbose --force --notest || true
+          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }} \
+          | cpanm --verbose --force --notest || true
+      - id: build-project-and-explore
+        name: Build Project And Explore
+        run: |
+          dzil --verbose build \
+          && Get-ChildItem -Path -Recurse -Force -Exclude .git
       - id: run-tests
         name: Run Tests
         run: |
-          dzil test --all --test-verbose
+          dzil --verbose test --all --test-verbose
