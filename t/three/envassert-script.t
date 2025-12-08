@@ -19,6 +19,7 @@ use Test2::V0;
 use Test::Script 1.28;
 
 use Test2::Deny::Platform::DOSOrDerivative;
+use Test2::Deny::Platform::CI::GitHubCI; # FIXME: Why does GitHub CI not manage to run test!
 
 my $path1 = File::Spec->rel2abs(File::Spec->catfile(File::Spec->curdir(), 't', 'three'));
 
