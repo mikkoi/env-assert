@@ -7,7 +7,7 @@ use 5.010;
 
 # ABSTRACT: Ensure that the environment variables match what you need, or abort.
 
-our $VERSION = '0.013';
+our $VERSION = '0.014';
 
 # We define our own import routine because
 # this is the point (when `use Env::Assert` is called)
