@@ -91,6 +91,8 @@ jobs:
           cpanm --verbose --force --notest Dist::Zilla
       - id: install-extra
         name: Install Extra Dependencies Which Are Somehow Missing
+        env:
+          PUREPERL_ONLY: 1
         run: |
           cpanm --verbose --force --notest Test::Perl::Critic
       # # - id: 
