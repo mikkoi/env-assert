@@ -69,11 +69,11 @@ jobs:
         run: |
           dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }} \
           | cpanm --verbose --force --notest || true
-      - id: build-project-and-explore
-        name: Build Project And Explore
-        run: |
-          dzil --verbose build \
-          && tree -af -I '\.git'
+      # - id: build-project-and-explore
+      #   name: Build Project And Explore
+      #   run: |
+      #     dzil --verbose build \
+      #     && tree -af -I '\.git'
       - id: run-test-suite
         name: Run Tests
         run: dzil --verbose test --all --test-verbose

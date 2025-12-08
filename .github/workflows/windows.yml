@@ -108,18 +108,18 @@ jobs:
       - id: list-deps-with-verbosity
         name: List Dependencies With Verbosity
         run: |
-          dzil --verbose listdeps --develop --requires --recommends --suggests --version
-          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core
+          dzil --verbose listdeps --develop --requires --recommends --suggests --cpanm-version
       - id: install-dzil-deps
         name: Install Dependencies
+        #  dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }} \
         run: |
-          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }} \
+          dzil listdeps --requires --develop recommends --suggests --cpanm-version \
           | cpanm --verbose --force --notest || true
-      - id: build-project-and-explore
-        name: Build Project And Explore
-        run: |
-          dzil --verbose build \
-          && Get-ChildItem -Path -Recurse -Force -Exclude .git
+      # - id: build-project-and-explore
+      #   name: Build Project And Explore
+      #   run: |
+      #     dzil --verbose build \
+      #     && Get-ChildItem -Path -Recurse -Force -Exclude .git
       - id: run-tests
         name: Run Tests
         run: |
