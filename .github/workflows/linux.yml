@@ -46,6 +46,10 @@ jobs:
       - id: explore-tools-perl
         name: perl -V
         run: perl -V
+      - id: explore-environment
+        name: Explore Environment
+        run: |
+          env
       # - name: Install Dependencies
       #   #run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
       #   run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile

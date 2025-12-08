@@ -89,6 +89,10 @@ jobs:
         name: Install Dist::Zilla
         run: |
           cpanm --verbose --force --notest Dist::Zilla
+      - id: install-extra
+        name: Install Extra Dependencies Which Are Somehow Missing
+        run: |
+          cpanm --verbose --force --notest Test::Perl::Critic
       # # - id: 
       #   name: Install Dependencies
       # #   #run: cpm install -g --no-test --show-build-log-on-failure --cpanfile cpanfile
