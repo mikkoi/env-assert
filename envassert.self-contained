@@ -15,7 +15,7 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   # ABSTRACT: Ensure that the environment variables match what you need, or abort.
   
-  our $VERSION = '0.014';
+  our $VERSION = '0.015';
   
   # We define our own import routine because
   # this is the point (when `use Env::Assert` is called)
@@ -47,11 +47,6 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   =for :stopwords env filepath filepaths
   
-  =head1 STATUS
-  
-  Package Env::Assert is currently being developed so changes in the API are possible,
-  though not likely.
-  
   =head1 SYNOPSIS
   
   =for test_synopsis BEGIN { die 'SKIP: no .envdesc file here' }
@@ -69,6 +64,11 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
       # use any environment variable
       say $ENV{MY_VAR};
   
+  
+  =head1 STATUS
+  
+  Package Env::Assert is currently being developed so changes in the API are possible,
+  though not likely.
   
   =head1 NOTES
   
@@ -144,7 +144,7 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   
   # ABSTRACT: The functionality of Env::Assert and bin/envassert.
   
-  our $VERSION = '0.014';
+  our $VERSION = '0.015';
   
   =for :stopwords env filepath filepaths params
   
@@ -4387,7 +4387,7 @@ use open ':std', IO => ':encoding(UTF-8)';
 
 # PODNAME: envassert
 
-our $VERSION = '0.013';
+our $VERSION = '0.014';
 
 use English      qw( -no_match_vars );                   # Avoids regex performance penalty in perl 5.18 and earlier
 use Getopt::Long qw( :config auto_version auto_help );
@@ -4453,7 +4453,7 @@ envassert - Ensure that the environment variables match what you need, or abort.
 
 =head1 VERSION
 
-version 0.013
+version 0.014
 
 =head1 SYNOPSIS
 
