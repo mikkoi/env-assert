@@ -39,11 +39,6 @@ local $OUTPUT_AUTOFLUSH = 1;
 
 =for :stopwords env filepath filepaths
 
-=head1 STATUS
-
-Package Env::Assert is currently being developed so changes in the API are possible,
-though not likely.
-
 =head1 SYNOPSIS
 
 =for test_synopsis BEGIN { die 'SKIP: no .envdesc file here' }
@@ -61,6 +56,11 @@ though not likely.
     # use any environment variable
     say $ENV{MY_VAR};
 
+
+=head1 STATUS
+
+Package Env::Assert is currently being developed so changes in the API are possible,
+though not likely.
 
 =head1 NOTES
 
