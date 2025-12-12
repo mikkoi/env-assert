@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Fix test three/envassert-script.t to use regexp to find errors in STDERR.
 
 0.013     2025-12-09 00:10:04+01:00 Europe/Stockholm
             * Move functionality from Env::Assert to Env::Assert::Functions.
