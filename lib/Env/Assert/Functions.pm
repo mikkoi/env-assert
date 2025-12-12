@@ -8,7 +8,7 @@ use 5.010;
 
 # ABSTRACT: The functionality of Env::Assert and bin/envassert.
 
-our $VERSION = '0.014';
+our $VERSION = '0.015';
 
 =for :stopwords env filepath filepaths params
 
