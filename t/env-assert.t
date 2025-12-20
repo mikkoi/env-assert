@@ -121,7 +121,7 @@ subtest 'Inline env desc file' => sub {
 use Env::Assert assert => {
     envdesc => q{
 NUMVAR=^\d+$
-TEXTVAR=^\w+\$
+TEXTVAR=^\w+$
 },
 };
 1;
