@@ -125,14 +125,6 @@ sub assert_env {
     return 1;
 }
 
-# sub _read_file {
-#     my $env_desc_filename = @_;
-#     open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
-#     my @env_desc_rows = <$fh>;
-#     close $fh or croak "Cannot close file '$env_desc_filename'";
-#     return @env_desc_rows;
-# }
-
 =head1 DEPENDENCIES
 
 No external dependencies outside Perl's standard distribution.
