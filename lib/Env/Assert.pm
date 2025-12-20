@@ -100,7 +100,7 @@ sub assert_env {
         # warn (ref $args);
         # warn Dumper(ref $args);
     if( $args{'envdesc'} ) {
-        @env_desc_rows = $args{'envdesc'};
+        @env_desc_rows = map { "$_\n" } split /\n/, $args{'envdesc'};
     } else {
         my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
         # warn Dumper($env_desc_filename);
