@@ -97,7 +97,7 @@ sub assert_env {
 
     my @env_desc_rows;
     if( $args{'envdesc'} ) {
-        @env_desc_rows = map { "$_\n" } split /\n/, $args{'envdesc'};
+        @env_desc_rows = map { "$_\n" } split qr/\n/msx, $args{'envdesc'};
     } else {
         my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
         open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
