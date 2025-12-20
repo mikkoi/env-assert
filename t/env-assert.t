@@ -155,7 +155,7 @@ use Env::Assert assert => {
 EOF
     local $EVAL_ERROR = undef;
     my $r = eval $code;
-    is($EVAL_ERROR, q{}, 'use Env::Assert successfull' );
+    is($EVAL_ERROR, q{}, 'use Env::Assert successful' );
     is( $r, 1, 'evaled okay');
 
     done_testing;
