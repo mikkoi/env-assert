@@ -15,11 +15,24 @@ our $VERSION = '0.015';
 
 use Carp;
 
+use English qw( -no_match_vars ); # Avoids regex performance penalty in perl 5.18 and earlier
+use open ':std', IO => ':encoding(UTF-8)';
+
+use Env::Assert::Functions qw( :all );
+
+local $OUTPUT_AUTOFLUSH = 1;
+
+use constant {
+    ENV_DESC_FILENAME => '.envdesc',
+};
+
+# Handle exports
 {
     no warnings 'redefine';    ## no critic [TestingAndDebugging::ProhibitNoWarnings]
 
     sub import {
         my ($class, $cmd, $args) = @_;
+        croak "Unknown argument '$cmd'" if( $cmd && $cmd ne 'assert' );
 
         if( ! assert_env( %{ $args } ) ) {
             croak 'Errors in environment detected.';
@@ -27,13 +40,6 @@ use Carp;
         return;
     }
 }
-
-use English qw( -no_match_vars ); # Avoids regex performance penalty in perl 5.18 and earlier
-use open ':std', IO => ':encoding(UTF-8)';
-
-use Env::Assert::Functions qw( :all );
-
-local $OUTPUT_AUTOFLUSH = 1;
 
 =pod
 
@@ -56,6 +62,14 @@ local $OUTPUT_AUTOFLUSH = 1;
     # use any environment variable
     say $ENV{MY_VAR};
 
+    # You can inline the envdesc file:
+    use Env::Assert assert => {
+        exact => 1,
+        envdesc => <<'EOF'
+    NUMERIC_VAR=^[[:digit:]]+$
+    TIME_VAR=^\d{2}:\d{2}:\d{2}$
+    EOF
+    };
 
 =head1 STATUS
 
@@ -64,14 +78,8 @@ though not likely.
 
 =head1 NOTES
 
-Functionality of L<Env::Assert> has been moved module L<Env::Assert::Functions> since version 0.013.
+Functionality of L<Env::Assert> has been moved to module L<Env::Assert::Functions> since version 0.013.
 L<Env::Assert> has a different API now.
-
-=cut
-
-use constant {
-    ENV_DESC_FILENAME => '.envdesc',
-};
 
 =head1 METHODS
 
@@ -84,13 +92,24 @@ and compare current environment.
 
 sub assert_env {
     my (%args) = @_;
-    my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
     my $break_at_first_error = $args{'break_at_first_error'}//0;
     my $exact = $args{'exact'}//0;
-    open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
-    my @env_desc_rows = <$fh>;
-    close $fh or croak "Cannot close file '$env_desc_filename'";
 
+    my @env_desc_rows;
+        # use Data::Dumper;
+        # warn (ref $args);
+        # warn Dumper(ref $args);
+    if( $args{'envdesc'} ) {
+        @env_desc_rows = $args{'envdesc'};
+    } else {
+        my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
+        # warn Dumper($env_desc_filename);
+        open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
+        @env_desc_rows = <$fh>;
+        close $fh or croak "Cannot close file '$env_desc_filename'";
+    }
+
+    # warn Dumper(\@env_desc_rows);
     my $desc = file_to_desc( @env_desc_rows );
     my %parameters;
     $parameters{'break_at_first_error'} = $break_at_first_error
@@ -106,6 +125,13 @@ sub assert_env {
     return 1;
 }
 
+# sub _read_file {
+#     my $env_desc_filename = @_;
+#     open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
+#     my @env_desc_rows = <$fh>;
+#     close $fh or croak "Cannot close file '$env_desc_filename'";
+#     return @env_desc_rows;
+# }
 
 =head1 DEPENDENCIES
 

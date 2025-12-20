@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Can inline env desc when 'use Env::Assert'.
 
 0.014     2025-12-13 00:12:38+01:00 Europe/Stockholm
             * Move segment STATUS after SYNOPSIS in Env::Assert.
