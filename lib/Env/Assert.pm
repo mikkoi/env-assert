@@ -96,20 +96,15 @@ sub assert_env {
     my $exact = $args{'exact'}//0;
 
     my @env_desc_rows;
-        # use Data::Dumper;
-        # warn (ref $args);
-        # warn Dumper(ref $args);
     if( $args{'envdesc'} ) {
         @env_desc_rows = map { "$_\n" } split /\n/, $args{'envdesc'};
     } else {
         my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
-        # warn Dumper($env_desc_filename);
         open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
         @env_desc_rows = <$fh>;
         close $fh or croak "Cannot close file '$env_desc_filename'";
     }
 
-    # warn Dumper(\@env_desc_rows);
     my $desc = file_to_desc( @env_desc_rows );
     my %parameters;
     $parameters{'break_at_first_error'} = $break_at_first_error
