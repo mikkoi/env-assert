@@ -22,19 +22,45 @@ use File::Temp ();
 
 # use Test2::Require::Platform::Unix;
 
+sub create_test_file {
+    my ($dirs, $fn, $content) = @_;
+    my $dir = File::Temp->newdir(
+        TEMPLATE => 'temp-envassert-test-XXXXX',
+        CLEANUP => 1,
+        DIR => File::Spec->tmpdir,
+    );
+    my $dir_path = abs_path( $dir->dirname );
+    make_path( File::Spec->catdir( $dir_path, @{ $dirs } ) );
+
+    my $fh = FileHandle->new( File::Spec->catfile( $dir_path, @{ $dirs }, $fn ), 'w' );
+    print { $fh } $content || croak;
+    $fh->close;
+
+    return $dir, $dir_path;
+}
+
 subtest 'Use Env::Assert plain without import arguments' => sub {
+    my $content = <<'EOF';
+# shellcheck disable=SC2034,SC2125
+
+# Simply assert the var exists
+ALERT_EMAIL=^.*$
+
+# Looks like a domain address
+SITE_URL=^https
+
+# POSIX regular expressions supported
+GITHUB_TOKEN=^[[:word:]]{1,}$
+EOF
+
+    my ($temp_dir, $dir_path) = create_test_file( [], q{.envdesc}, $content );
     # Do not use __FILE__ because its value is not absolute and not updated
     # when chdir is done.
     my $this = getcwd;
     ($this) = $this =~ /(.+)/msx; # Make it non-tainted
-    my $subdir_path = File::Spec->catdir( $RealBin, 'env-assert' );
+    my $subdir_path = File::Spec->catdir( $dir_path );
+    diag 'Change to ' . $subdir_path;
     chdir $subdir_path || croak;
-
-    # $new_env{$_} = $ENV{$_} foreach (keys %ENV);
-    # delete $new_env{'ENVDOT_FILEPATHS'} if exists $new_env{'ENVDOT_FILEPATHS'};
-    # $new_env{ALERT_EMAIL} = 'alert@example.com';
-    # $new_env{SITE_URL} = 'https://www.example.com';
-    # $new_env{GITHUB_TOKEN} = '0123456789qwertyuiop';
 
     my %new_env = (
         ALERT_EMAIL  => 'alert@example.com',
@@ -58,12 +84,6 @@ EOF
 };
 
 subtest 'Wrong import argument' => sub {
-    # Do not use __FILE__ because its value is not absolute and not updated
-    # when chdir is done.
-    # my $this = getcwd;
-    # ($this) = $this =~ /(.+)/msx; # Make it non-tainted
-    # my $subdir_path = File::Spec->catdir( $RealBin, 'env-assert' );
-    # chdir $subdir_path || croak;
 
     my %new_env = (
         ALERT_EMAIL  => 'alert@example.com',
@@ -88,17 +108,7 @@ EOF
 };
 
 subtest 'Inline env desc file' => sub {
-    # Do not use __FILE__ because its value is not absolute and not updated
-    # when chdir is done.
-    # my $this = getcwd;
-    # ($this) = $this =~ /(.+)/msx; # Make it non-tainted
-    # my $subdir_path = File::Spec->catdir( $RealBin, 'env-assert' );
-    # chdir $subdir_path || croak;
-
     my %new_env = (
-        # ALERT_EMAIL  => 'alert@example.com',
-        # SITE_URL     => 'https://www.example.com',
-        # GITHUB_TOKEN => '0123456789qwertyuiop',
         NUMVAR       => '12345',
         TEXTVAR      => 'example_text',
     );
@@ -129,9 +139,6 @@ EOF
 subtest 'Point to another env desc file' => sub {
     my $subdir_filepath = File::Spec->catfile( $RealBin, 'env-assert', 'another-envdesc' );
     my %new_env = (
-        # ALERT_EMAIL  => 'alert@example.com',
-        # SITE_URL     => 'https://www.example.com',
-        # GITHUB_TOKEN => '0123456789qwertyuiop',
         A_NUMVAR       => '12345',
         A_TEXTVAR      => 'example_text',
     );
