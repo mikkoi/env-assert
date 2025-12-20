@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Remove Perl Critic from testing. Difficulties in Windows installation
             * Can inline env desc when 'use Env::Assert'.
 
 0.014     2025-12-13 00:12:38+01:00 Europe/Stockholm
