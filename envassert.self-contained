@@ -15,7 +15,7 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   # ABSTRACT: Ensure that the environment variables match what you need, or abort.
   
-  our $VERSION = '0.015';
+  our $VERSION = '0.016';
   
   # We define our own import routine because
   # this is the point (when `use Env::Assert` is called)
@@ -23,11 +23,24 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   use Carp;
   
+  use English qw( -no_match_vars ); # Avoids regex performance penalty in perl 5.18 and earlier
+  use open ':std', IO => ':encoding(UTF-8)';
+  
+  use Env::Assert::Functions qw( :all );
+  
+  use constant {
+      ENV_DESC_FILENAME => '.envdesc',
+  };
+  
+  # Handle exports
   {
       no warnings 'redefine';    ## no critic [TestingAndDebugging::ProhibitNoWarnings]
   
       sub import {
           my ($class, $cmd, $args) = @_;
+  
+          # We also allow only: 'use Env::Assert;'
+          croak "Unknown argument '$cmd'" if( $cmd && $cmd ne 'assert' );
   
           if( ! assert_env( %{ $args } ) ) {
               croak 'Errors in environment detected.';
@@ -35,13 +48,6 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
           return;
       }
   }
-  
-  use English qw( -no_match_vars ); # Avoids regex performance penalty in perl 5.18 and earlier
-  use open ':std', IO => ':encoding(UTF-8)';
-  
-  use Env::Assert::Functions qw( :all );
-  
-  local $OUTPUT_AUTOFLUSH = 1;
   
   =pod
   
@@ -61,9 +67,17 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
       # .envdesc file:
       # MY_VAR=.+
   
-      # use any environment variable
+      # use any verified environment variable
       say $ENV{MY_VAR};
   
+      # You can inline the envdesc file:
+      use Env::Assert assert => {
+          exact => 1,
+          envdesc => <<'EOF'
+      NUMERIC_VAR=^[[:digit:]]+$
+      TIME_VAR=^\d{2}:\d{2}:\d{2}$
+      EOF
+      };
   
   =head1 STATUS
   
@@ -72,14 +86,8 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   =head1 NOTES
   
-  Functionality of L<Env::Assert> has been moved module L<Env::Assert::Functions> since version 0.013.
+  Functionality of L<Env::Assert> has been moved to module L<Env::Assert::Functions> since version 0.013.
   L<Env::Assert> has a different API now.
-  
-  =cut
-  
-  use constant {
-      ENV_DESC_FILENAME => '.envdesc',
-  };
   
   =head1 METHODS
   
@@ -92,12 +100,24 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   sub assert_env {
       my (%args) = @_;
-      my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
+      local $OUTPUT_AUTOFLUSH = 1;
+  
       my $break_at_first_error = $args{'break_at_first_error'}//0;
       my $exact = $args{'exact'}//0;
-      open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
-      my @env_desc_rows = <$fh>;
-      close $fh or croak "Cannot close file '$env_desc_filename'";
+  
+      my @env_desc_rows;
+      if( $args{'envdesc'} ) {
+          my $content = $args{'envdesc'};
+          open my $fh, q{<}, \$content
+              or croak 'Cannot open scalar envdesc content';
+          @env_desc_rows = <$fh>;
+          close $fh or croak 'Cannot close scalar envdesc content';
+      } else {
+          my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
+          open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
+          @env_desc_rows = <$fh>;
+          close $fh or croak "Cannot close file '$env_desc_filename'";
+      }
   
       my $desc = file_to_desc( @env_desc_rows );
       my %parameters;
@@ -113,7 +133,6 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
       }
       return 1;
   }
-  
   
   =head1 DEPENDENCIES
   
@@ -144,7 +163,7 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   
   # ABSTRACT: The functionality of Env::Assert and bin/envassert.
   
-  our $VERSION = '0.015';
+  our $VERSION = '0.016';
   
   =for :stopwords env filepath filepaths params
   
@@ -4387,7 +4406,7 @@ use open ':std', IO => ':encoding(UTF-8)';
 
 # PODNAME: envassert
 
-our $VERSION = '0.014';
+our $VERSION = '0.015';
 
 use English      qw( -no_match_vars );                   # Avoids regex performance penalty in perl 5.18 and earlier
 use Getopt::Long qw( :config auto_version auto_help );
@@ -4409,20 +4428,28 @@ my $man = 0;
 my $break_at_first_error;
 my $env_desc_filename = ENV_DESC_FILENAME;
 my $exact;
+my $stdin = 0;
 GetOptions(
     'man'                     => \$man,
     'break-at-first-error|b!' => \$break_at_first_error,
     'env-description|e=s'     =>,
     \$env_desc_filename,
     'exact|x!' => \$exact,
+    'stdin!'   => \$stdin,
 ) or pod2usage(2);
 pod2usage( -exitval => 0, -verbose => 2 ) if $man;
 
 sub main {
 
-    open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
-    my @env_desc_rows = <$fh>;
-    close $fh or croak "Cannot close file '$env_desc_filename'";
+    my @env_desc_rows;
+    if ($stdin) {
+        @env_desc_rows = <>;
+    }
+    else {
+        open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
+        @env_desc_rows = <$fh>;
+        close $fh or croak "Cannot close file '$env_desc_filename'";
+    }
 
     my $desc = file_to_desc(@env_desc_rows);
     my %parameters;
@@ -4453,7 +4480,7 @@ envassert - Ensure that the environment variables match what you need, or abort.
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 SYNOPSIS
 
@@ -4463,8 +4490,10 @@ Options:
     --help
     --man
     --version
-    --break-at-error
-    --env-description
+    --break-at-first-error, -b
+    --env-description, -e
+    --exact, -x
+    --stdin, -s
 
 =head1 DESCRIPTION
 
@@ -4595,6 +4624,12 @@ Fail check if environment contains variables not defined in environment descript
 This option will override the equivalent option in .envdesc file.
 Default: false
 
+=item B<-s>, B<--stdin>
+
+Read environment description from STDIN, not from a file.
+Incompatible with option B<--env-description>.
+Default: false
+
 =back
 
 =head1 EXAMPLES
@@ -4604,6 +4639,16 @@ Default: false
         variables:
             FIRST_VAR: Variable FIRST_VAR is missing from environment
             FOURTH_VAR: Variable FOURTH_VAR is missing from environment
+
+=head2 Embedded In a Script
+
+    #!/usr/bin/env sh
+    # Ensure we have the required environment setup.
+    envassert <<'EOF'
+    NUMERIC_VAR=^[[:digit:]]+$
+    TIME_VAR=^\d{2}:\d{2}:\d{2}$
+    EOF
+    echo "${NUMERIC_VAR}: ${TIME_VAR}"
 
 =head1 DEPENDENCIES
 
