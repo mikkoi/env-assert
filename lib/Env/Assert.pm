@@ -32,6 +32,8 @@ use constant {
 
     sub import {
         my ($class, $cmd, $args) = @_;
+
+        # We also allow only: 'use Env::Assert;'
         croak "Unknown argument '$cmd'" if( $cmd && $cmd ne 'assert' );
 
         if( ! assert_env( %{ $args } ) ) {
