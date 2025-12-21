@@ -68,8 +68,8 @@ use constant {
         envdesc => <<'EOF'
     NUMERIC_VAR=^[[:digit:]]+$
     TIME_VAR=^\d{2}:\d{2}:\d{2}$
-    EOF
     };
+    EOF
 
 =head1 STATUS
 
