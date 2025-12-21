@@ -59,7 +59,7 @@ use constant {
     # .envdesc file:
     # MY_VAR=.+
 
-    # use any environment variable
+    # use any verified environment variable
     say $ENV{MY_VAR};
 
     # You can inline the envdesc file:
@@ -68,8 +68,8 @@ use constant {
         envdesc => <<'EOF'
     NUMERIC_VAR=^[[:digit:]]+$
     TIME_VAR=^\d{2}:\d{2}:\d{2}$
-    };
     EOF
+    };
 
 =head1 STATUS
 
