@@ -81,7 +81,7 @@ subtest 'Script succeeds with other envdesc file because env requirements are fu
 
     my ($stdout, $stderr);
     script_runs(['bin/using-another.pl', ], { stdout => \$stdout, stderr => \$stderr, }, 'Verify no errors in output');
-    is( $stdout, qq{Control will reach this point if env requirements are fullfilled!\n}, 'Correct stdout' );
+    is( $stdout, qq{Control will reach this point if env requirements are fulfilled!\n}, 'Correct stdout' );
     is( $stderr, q{}, 'Correct stderr' );
 
     done_testing;
