@@ -20,8 +20,6 @@ use open ':std', IO => ':encoding(UTF-8)';
 
 use Env::Assert::Functions qw( :all );
 
-local $OUTPUT_AUTOFLUSH = 1;
-
 use constant {
     ENV_DESC_FILENAME => '.envdesc',
 };
@@ -94,6 +92,8 @@ and compare current environment.
 
 sub assert_env {
     my (%args) = @_;
+    local $OUTPUT_AUTOFLUSH = 1;
+
     my $break_at_first_error = $args{'break_at_first_error'}//0;
     my $exact = $args{'exact'}//0;
 
