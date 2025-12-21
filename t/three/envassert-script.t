@@ -73,10 +73,10 @@ subtest 'Script succeeds with other envdesc file because env requirements are fu
     chdir($path1) || croak "Cannot chdir($path1): $OS_ERROR";
 
     local %ENV = (
+        map { $_ => $ENV{$_} } keys %ENV,
         A_DIGIT => '123',
         A_MISSING_VAR => 'is_no_longer_missing',
         ANOTHER_MISSING_VAR => 'is_no_longer_missing',
-        map { $_ => $ENV{$_} } keys %ENV,
     );
 
     my ($stdout, $stderr);
