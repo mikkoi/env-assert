@@ -2,6 +2,8 @@
 [![CPAN Version](https://img.shields.io/cpan/v/Env-Assert)](https://metacpan.org/dist/Env-Assert)
 [![kwalitee](https://cpants.cpanauthors.org/dist/Env-Assert.svg)](https://cpants.cpanauthors.org/dist/Env-Assert)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mikkoi/env-assert)
+[![Linux Build](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml)
+[![Windows Build](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml)
 
 # envassert
 
