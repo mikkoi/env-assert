@@ -61,11 +61,13 @@ use constant  {
     INDENT => q{    },
 };
 
-=head1 STATUS
+=head1 NAME
 
-Package Env::Assert is currently being developed so changes in the API are possible,
-though not likely.
+Env::Assert::Functions - The functionality of Env::Assert and bin/envassert.
 
+=head1 VERSION
+
+version 0.016
 
 =head1 SYNOPSIS
 
@@ -86,6 +88,10 @@ though not likely.
         print report_errors( $r->{'errors'} );
     }
 
+=head1 STATUS
+
+Package Env::Assert is currently being developed so changes in the API are possible,
+though not likely.
 
 =head1 NOTES
 
@@ -268,6 +274,17 @@ L<Env::Dot> is a "sister" to Env::Assert.
 Read environment variables from a F<.env> file directly into you program.
 There is also script F<envdot> which can turn F<.env> file's content
 into environment variables for different shells.
+
+=head1 AUTHOR
+
+Mikko Koivunalho <mikkoi@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2023 by Mikko Koivunalho.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 

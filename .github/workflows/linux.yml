@@ -1,21 +1,20 @@
 name: linux
 
 on:
+  pull_request:
   push:
     branches:
       - '*'
-  #   tags-ignore:
-  #     - '*'
   workflow_dispatch:
-#  pull_request:
 
 jobs:
   perl:
     env:
-      # some plugins still needs this to run their tests...
+      # some plugins still need this to run their tests...
       PERL_USE_UNSAFE_INC: 0
       AUTHOR_TESTING: 1
       AUTOMATED_TESTING: 1
+      EXTENDED_TESTING: 1
       RELEASE_TESTING: 1
 
     runs-on: ubuntu-latest
@@ -28,7 +27,7 @@ jobs:
           - '5.40'
           - '5.34'
           - '5.28'
-          - '5.20'
+          # - '5.20' No dzil
           # - '5.18' No dzil
           # - '5.16' No dzil
           # - '5.14' No dzil
@@ -42,7 +41,7 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - id: explore-tools-perl
         name: perl -V
         run: perl -V
@@ -67,12 +66,14 @@ jobs:
       - id: list-deps-with-verbosity
         name: List Dependencies With Verbosity
         run: |
-          dzil --verbose listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }}
+          dzil --verbose listdeps --requires --develop recommends --suggests --cpanm-version --omit-core "$(perl -E 'say $];')"
+        shell: bash
       - id: install-dzil-deps
         name: Install Dependencies
         run: |
-          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }} \
+          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core "$(perl -E 'say $];')" \
           | cpanm --verbose --force --notest || true
+        shell: bash
       # - id: build-project-and-explore
       #   name: Build Project And Explore
       #   run: |

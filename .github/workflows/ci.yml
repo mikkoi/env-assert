@@ -1,0 +1,59 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    container:
+      image: perldocker/perl-tester:5.42
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v6
+      - id: run-tests
+        name: Run Tests
+        env:
+          PERL_USE_UNSAFE_INC: 0
+          AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1
+          EXTENDED_TESTING: 1
+          RELEASE_TESTING: 1
+        run: auto-build-and-test-dist
+      - id: upload-artifact
+        # Upload artifact to a GitHub Actions "storage".
+        name: Upload Build
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: build_dir
+          path: build_dir
+  coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: perldocker/perl-tester:5.42
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v6
+      - id: download-artifact
+        # Download the artifact that was uploaded in earlier step.
+        name: Download Build
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: build_dir
+          path: .
+      - id: install-deps
+        name: Install deps
+        run: cpan-install-dist-deps
+      - id: test
+        name: Test
+        run: test-dist
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          COVERALLS_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN}}
