@@ -61,11 +61,13 @@ use constant  {
     INDENT => q{    },
 };
 
-=head1 STATUS
+=head1 NAME
 
-Package Env::Assert is currently being developed so changes in the API are possible,
-though not likely.
+Env::Assert::Functions - The functionality of Env::Assert and bin/envassert.
 
+=head1 VERSION
+
+version 0.016
 
 =head1 SYNOPSIS
 
@@ -86,6 +88,10 @@ though not likely.
         print report_errors( $r->{'errors'} );
     }
 
+=head1 STATUS
+
+Package Env::Assert is currently being developed so changes in the API are possible,
+though not likely.
 
 =head1 NOTES
 

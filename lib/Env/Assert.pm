@@ -45,6 +45,14 @@ use constant {
 
 =for :stopwords env filepath filepaths
 
+=head1 NAME
+
+Env::Assert - Ensure that the environment variables match what you need, or abort
+
+=head1 VERSION
+
+version 0.016
+
 =head1 SYNOPSIS
 
 =for test_synopsis BEGIN { die 'SKIP: no .envdesc file here' }
