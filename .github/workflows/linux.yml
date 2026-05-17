@@ -67,12 +67,14 @@ jobs:
       - id: list-deps-with-verbosity
         name: List Dependencies With Verbosity
         run: |
-          dzil --verbose listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }}
+          dzil --verbose listdeps --requires --develop recommends --suggests --cpanm-version --omit-core "$(perl -E 'say $];')"
+        shell: bash
       - id: install-dzil-deps
         name: Install Dependencies
         run: |
-          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core ${{ matrix.perl-version }} \
+          dzil listdeps --requires --develop recommends --suggests --cpanm-version --omit-core "$(perl -E 'say $];')" \
           | cpanm --verbose --force --notest || true
+        shell: bash
       # - id: build-project-and-explore
       #   name: Build Project And Explore
       #   run: |
