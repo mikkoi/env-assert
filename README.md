@@ -4,8 +4,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/mikkoi/env-assert/badge.svg?branch=add-codecov-report)](https://coveralls.io/github/mikkoi/env-assert?branch=add-codecov-report)
 [![Codecov](https://codecov.io/gh/mikkoi/env-assert/graph/badge.svg?token=WSOLKXXEVK)](https://codecov.io/gh/mikkoi/env-assert)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mikkoi/env-assert)
-[![Linux Build](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml)
-[![Windows Build](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml)
+[![GH Actions: Linux Build](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml)
+[![GH Actions: Windows Build](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml)
 
 # envassert
 
