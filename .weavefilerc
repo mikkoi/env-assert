@@ -1,0 +1,77 @@
+---
+snippets:
+    license: |
+        # LICENSE
+
+        This software is copyright (c) 2026 by [% dist.author %].
+
+        This is free software; you can redistribute it and/or modify it under
+        the same terms as the Perl 5 programming language system itself.
+
+        Terms of the Perl programming language system itself:
+
+        a) the GNU General Public License as published by the Free
+           Software Foundation; either version 1, or (at your option) any
+           later version, or
+        b) the "Artistic License"
+
+        The complete licenses are in the files LICENSE-Artistic-2.0 and LICENSE-GPL-3
+        within this repository. If these files are missing, they can be downloaded
+        from the following urls:
+
+            * https://www.gnu.org/licenses/
+            * https://www.perlfoundation.org/artistic-license-20.html
+    badges: |
+        [![License: Artistic-2.0](https://img.shields.io/badge/License-Perl-0298c3.svg)](https://opensource.org/licenses/Artistic-2.0)
+        [![CPAN Version](https://img.shields.io/cpan/v/Env-Assert)](https://metacpan.org/dist/Env-Assert)
+        [![kwalitee](https://cpants.cpanauthors.org/dist/Env-Assert.svg)](https://cpants.cpanauthors.org/dist/Env-Assert)
+        [![codecov](https://codecov.io/gh/mikkoi/env-assert/graph/badge.svg?token=WSOLKXXEVK)](https://codecov.io/gh/mikkoi/env-assert)
+        [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mikkoi/env-assert)
+        [![Linux Build](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml)
+        [![Windows Build](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml)
+    packaging_badge: |
+        ### Packaging
+
+        [![Packaging status](https://repology.org/badge/vertical-allrepos/env-assert.svg)](https://repology.org/project/env-assert/versions)
+files:
+    "README.md": |
+        [% snippets.badges -%]
+
+        # [% dist.name %]
+
+        [% dist.abstract -%]
+
+        [% pod("Env::Assert", "VERSION") %]
+
+        # VERSION
+
+        [% dist.version %]
+
+
+        [% pod("Env::Assert", "SYNOPSIS") %]
+
+
+        [% pod("bin/envassert", "DESCRIPTION") %]
+
+
+        ## INSTALLATION
+
+        [% snippets.packaging_badge -%]
+
+        ### CLI interface without dependencies
+
+        The **envassert** command is also available
+        as self contained executable.
+        You can download it and run it as it is without
+        additional installation of CPAN packages.
+        Of course, you still need Perl, but Perl comes with any
+        normal Linux installation.
+
+        This can be convenient if you want to, for instance,
+        include **envassert** in a docker container build.
+
+            curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/main/envassert.self-contained
+            chmod +x ./envassert
+
+
+        [% snippets.license %]
