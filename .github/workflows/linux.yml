@@ -12,7 +12,7 @@ on:
 jobs:
   perl:
     env:
-      # some plugins still needs this to run their tests...
+      # some plugins still need this to run their tests...
       PERL_USE_UNSAFE_INC: 0
       AUTHOR_TESTING: 1
       AUTOMATED_TESTING: 1
