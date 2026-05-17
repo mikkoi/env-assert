@@ -16,6 +16,7 @@ jobs:
       PERL_USE_UNSAFE_INC: 0
       AUTHOR_TESTING: 1
       AUTOMATED_TESTING: 1
+      EXTENDED_TESTING: 1
       RELEASE_TESTING: 1
 
     runs-on: ubuntu-latest
