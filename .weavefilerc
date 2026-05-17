@@ -40,13 +40,10 @@ files:
 
         # [% dist.name %]
 
-        [% dist.abstract -%]
+        [% dist.abstract %]
+
 
         [% pod("Env::Assert", "VERSION") %]
-
-        # VERSION
-
-        [% dist.version %]
 
 
         [% pod("Env::Assert", "SYNOPSIS") %]

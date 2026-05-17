@@ -14,7 +14,7 @@ Ensure that the environment variables match what is requested, or abort. Module 
 
 # VERSION
 
-0.016
+version 0.016
 
 
 # SYNOPSIS
