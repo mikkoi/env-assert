@@ -7,10 +7,40 @@
 [![GH Actions: Linux Build](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/linux.yml)
 [![GH Actions: Windows Build](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml/badge.svg?event=push&branch=main)](https://github.com/mikkoi/env-assert/actions/workflows/windows.yml)
 
-# envassert
+# Env-Assert
 
-Ensure that the environment variables match
-what is requested, or abort.
+Ensure that the environment variables match what is requested, or abort. Module and executable.
+
+
+# VERSION
+
+0.016
+
+
+# SYNOPSIS
+
+    use Env::Assert 'assert';
+    # or:
+    use Env::Assert assert => {
+        envdesc_file => 'another-envdesc',
+        break_at_first_error => 1,
+    };
+
+    # .envdesc file:
+    # MY_VAR=.+
+
+    # use any verified environment variable
+    say $ENV{MY_VAR};
+
+    # You can inline the envdesc file:
+    use Env::Assert assert => {
+        exact => 1,
+        envdesc => <<'EOF'
+    NUMERIC_VAR=^[[:digit:]]+$
+    TIME_VAR=^\d{2}:\d{2}:\d{2}$
+    EOF
+    };
+
 
 # DESCRIPTION
 
@@ -18,24 +48,83 @@ what is requested, or abort.
 with environment variables, matches with what you want.
 
 You can define your required environment in a file.
-Default file is **.envdesc** but you can use any file.
+Default file is `.envassert` but you can use any file.
+
 It is advantageous to use **envassert** for example when running
 a container. If you check your environment for missing or
 wrongly defined environment variables at the beginning of
 the container run, your container will fail sooner instead
 of in a later point in execution when the variables are needed.
 
-# SYNOPSIS
+## Errors
 
-envassert [options]
+There are three kinds of errors:
 
-Options:
+- ENV\_ASSERT\_MISSING\_FROM\_ENVIRONMENT
 
-    --help
-    --man
-    --version
-    --break-at-error
-    --env-description
+    "Variable &lt;var\_name> is missing from environment"
+
+- ENV\_ASSERT\_INVALID\_CONTENT\_IN\_VARIABLE
+
+    "Variable &lt;var\_name> has invalid content"
+
+- ENV\_ASSERT\_MISSING\_FROM\_DEFINITION
+
+    "Variable &lt;var\_name> is missing from description"
+
+    This error will only be reported if you have set
+    the special option **exact**. See below.
+
+## Environment Description Language
+
+Environment is described in file `.envdesc`.
+Environment description file is a Unix shell compatible file,
+similar to a `.env` file.
+
+### `.envdesc` Format
+
+In `.envdesc` file there is only environment variables, comments
+or empty rows.
+Example:
+
+    # Required env
+    ## envassert (opts: exact=1)
+    FILENAME=^[[:word:]]{1,}$
+
+Env var name is followed by a regular expression. The regexp is
+an extended Perl regular expression without quotation marks.
+One env var and its descriptive regexp use one row.
+
+A comment begins at the beginning of the row and uses the whole row.
+It start with '#' character.
+
+Two comment characters and the word **envassert** at the beginning of the row
+mean this is an **envassert** meta command.
+You can specify different environment related options with these commands.
+
+Supported options:
+
+- exact
+
+    The option _exact_ means that all allowed env variables
+    are described in this file. Any unknown env var causes an error
+    when verifying.
+
+## CLI interface without dependencies
+
+The `envassert` command is also available
+as self contained executable.
+You can download it and run it as it is without
+additional installation of CPAN packages.
+Of course, you still need Perl, but Perl comes with any
+normal Linux installation.
+
+This can be convenient if you want to, for instance,
+include `envassert` in a docker container build.
+
+    curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/main/envassert.self-contained
+    chmod +x ./envassert
+
 
 ## INSTALLATION
 
@@ -58,9 +147,10 @@ include **envassert** in a docker container build.
     curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/main/envassert.self-contained
     chmod +x ./envassert
 
+
 # LICENSE
 
-This software is copyright (c) 2023 by Mikko Koivunalho.
+This software is copyright (c) 2026 by Mikko Koivunalho <mikkoi@cpan.org>.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
