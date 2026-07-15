@@ -10,6 +10,10 @@ use 5.010;
 
 our $VERSION = '0.016';
 
+=pod
+
+=encoding utf8
+
 =for :stopwords env filepath filepaths params
 
 =cut

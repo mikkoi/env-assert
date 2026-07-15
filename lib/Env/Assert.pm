@@ -43,6 +43,8 @@ use constant {
 
 =pod
 
+=encoding utf8
+
 =for :stopwords env filepath filepaths
 
 =head1 NAME
