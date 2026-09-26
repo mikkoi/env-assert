@@ -15,7 +15,7 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - id: run-tests
         name: Run Tests
         env:
@@ -40,7 +40,7 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - id: download-artifact
         # Download the artifact that was uploaded in earlier step.
         name: Download Build
