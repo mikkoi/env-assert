@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Add .git-repo-admin.
             * Add Perl::Critic and ::Bangs to dist.ini.
             * Add pod encoding name.
 

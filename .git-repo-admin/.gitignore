@@ -1,0 +1,2 @@
+# Only ignore the logfile
+/githooks.log

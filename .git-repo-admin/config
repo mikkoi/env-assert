@@ -1,0 +1,46 @@
+[githooks]
+    debug = 0
+    # Git::Hooks hooks are "plugins"
+    # plugin = CheckReference
+    plugin = CheckLog
+    plugin = CheckWhitespace
+    plugin = CheckCommit
+    # plugin = PrepareLog
+    # plugin = Git::MoreHooks::CheckCommitAuthorFromMailmap
+    # plugin = Git::MoreHooks::GitRepoAdmin
+    plugin = Git::MoreHooks::ScanCtags
+    plugin = Git::MoreHooks::CheckPerl
+    # General Git::Hooks configuration for remote repository
+    userenv = "eval:exists $ENV{REMOTE_USER} ? $ENV{REMOTE_USER} : exists $ENV{USER} ? $ENV{USER} : undef"
+    # groups = GroupAdmins =
+    # admin = @GroupAdmins
+    # help-on-error = "Git::Hooks failed. Please consult error messages."
+[githooks "checkreference"]
+    acl = deny CRUD ^refs/
+    acl = allow U ^refs/heads/main
+    acl = allow CRUD ^refs/heads/{GITHOOKS_AUTHENTICATED_USER}/[A-Za-z0-9-]+
+    acl = allow CRUD ^refs/heads/common/[A-Za-z0-9-]+
+[githooks "preparelog"]
+    issue-branch-regex = [a-zA-Z0-9-\\/]+
+[githooks "checkcommit"]
+    signature = good
+[githooks "checklog"]
+    title-required = true
+    title-max-width = 50
+    title-period = deny
+    title-match = ^[A-Z]+.+
+    body-max-width = 72
+    match = !\t
+    spelling = false
+    spelling-lang = EN
+    signed-off-by = false
+    deny-merge-revert = false
+    help-on-error = "Some general information on commit messages and possible policies for them: http://www.kernel.org/pub/software/scm/git/docs/git-commit.html"
+[githooks "checkcommitauthorfrommailmap"]
+    match-mailmap-name = 1
+    allow-mailmap-aliases = 1
+[githooks "gitrepoadmin"]
+    # The full name or regexp of the ref/branch which has the official hook config.
+    # This branch is normally master or main. It should be a protected branch,
+    # i.e. commits should come only via pull request.
+    ref = "^refs/heads/main"
