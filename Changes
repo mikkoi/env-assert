@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Make tidy t/env-assert-public-assert.t.
             * Allow cuddled-else in Perl Tidy.
             * Tidy bin/envassert and improve --help flag.
             * Rename variable var to env_var.
