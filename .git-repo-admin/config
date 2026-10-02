@@ -28,7 +28,7 @@
     title-required = true
     title-max-width = 50
     title-period = deny
-    title-match = ^[A-Z]+.+
+    title-match = ^[A-Za-z0-9]+.+
     body-max-width = 72
     match = !\t
     spelling = false
