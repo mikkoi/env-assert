@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.016     2026-10-02 22:06:55+02:00 Europe/Stockholm
             * Add more badges to README.md.
             * Add GitHub::CreateRelease to Dist::Zilla build.
             * Add .git-repo-admin.
