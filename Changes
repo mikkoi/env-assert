@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Tidy bin/envassert and improve --help flag.
             * Rename variable var to env_var.
 
 0.016     2026-10-02 22:06:55+02:00 Europe/Stockholm

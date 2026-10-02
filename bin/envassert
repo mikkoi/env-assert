@@ -11,7 +11,7 @@ use open ':std', IO => ':encoding(UTF-8)';
 
 our $VERSION = '0.017';
 
-use English qw( -no_match_vars ); # Avoids regex performance penalty in perl 5.18 and earlier
+use English      qw( -no_match_vars );                   # Avoids regex performance penalty in perl 5.18 and earlier
 use Getopt::Long qw( :config auto_version auto_help );
 use Carp;
 use Pod::Usage;
@@ -21,30 +21,30 @@ use Env::Assert::Functions qw( :all );
 local $OUTPUT_AUTOFLUSH = 1;
 
 use constant {
-    YEAR_START => 1900,
-    MONTH_START => 1,
+    YEAR_START        => 1900,
+    MONTH_START       => 1,
     ENV_DESC_FILENAME => '.envdesc',
-    INDENT => q{    },
+    INDENT            => q{    },
 };
 
-my $man = 0;
-my $break_at_first_error;
-my $env_desc_filename = ENV_DESC_FILENAME;
+my $man                  = 0;
+my $break_at_first_error = 0;
+my $env_desc_filename    = ENV_DESC_FILENAME;
 my $exact;
 my $stdin = 0;
 GetOptions(
-    'man' => \$man,
+    'man'                     => \$man,
     'break-at-first-error|b!' => \$break_at_first_error,
-    'env-description|e=s' => , \$env_desc_filename,
-    'exact|x!' => \$exact,
-    'stdin!' => \$stdin,
+    'env-description|e=s'     => \$env_desc_filename,
+    'exact|x!'                => \$exact,
+    'stdin!'                  => \$stdin,
 ) or pod2usage(2);
-pod2usage(-exitval => 0, -verbose => 2) if $man;
+pod2usage( -exitval => 0, -verbose => 2 ) if $man;
 
 sub main {
 
     my @env_desc_rows;
-    if( $stdin ) {
+    if ($stdin) {
         @env_desc_rows = <>;
     } else {
         open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
@@ -52,16 +52,16 @@ sub main {
         close $fh or croak "Cannot close file '$env_desc_filename'";
     }
 
-    my $desc = file_to_desc( @env_desc_rows );
+    my $desc = file_to_desc(@env_desc_rows);
     my %parameters;
     $parameters{'break_at_first_error'} = $break_at_first_error
-        if defined $break_at_first_error;
+      if $break_at_first_error;
     $desc->{'options'}->{'exact'} = $exact
-        if defined $exact;
+      if defined $exact;
     my $r = assert( \%ENV, $desc, \%parameters );
-    if( ! $r->{'success'} ) {
+    if ( !$r->{'success'} ) {
         print {*STDOUT} report_errors( $r->{'errors'} )
-            or croak 'Cannot print errors to STDOUT';
+          or croak 'Cannot print errors to STDOUT';
         return 1;
     }
     return 0;
@@ -84,13 +84,15 @@ envassert - Ensure that the environment variables match what you need, or abort.
 envassert [options]
 
 Options:
-    --help
-    --man
-    --version
-    --break-at-first-error, -b
-    --env-description, -e
-    --exact, -x
-    --stdin, -s
+
+    --help                      Print this message
+    --man                       Show man page
+    --version                   Print version
+
+    --break-at-first-error, -b  Report first error and break processing
+    --env-description, -e       Filepath to Environment Description file
+    --exact, -x                 Do not allow unknown variables
+    --stdin, -s                 Read Env Desc from STDIN, not from file
 
 
 =head1 OPTIONS
