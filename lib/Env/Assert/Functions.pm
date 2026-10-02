@@ -143,9 +143,9 @@ sub assert {
     my $vars = $want->{'variables'};
     my $opts = $want->{'options'};
     foreach my $var_name (keys %{ $vars }) {
-        my $var = $vars->{$var_name};
-        my $required = $var->{'required'}//1;
-        my $regexp = $var->{'regexp'}//q{.*};
+        my $env_var = $vars->{$var_name};
+        my $required = $env_var->{'required'}//1;
+        my $regexp = $env_var->{'regexp'}//q{.*};
         if( ( $opts->{'exact'} || $required ) && ! defined $env->{$var_name} ) {
             $success = 0;
             $errors{'variables'}->{ $var_name } = {
