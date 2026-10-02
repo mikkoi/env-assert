@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Allow cuddled-else in Perl Tidy.
             * Tidy bin/envassert and improve --help flag.
             * Rename variable var to env_var.
 
