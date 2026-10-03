@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.017     2026-10-03 12:41:48+02:00 Europe/Stockholm
             * Bugfix: required var must be in env regardless of param exact value.
             * Add DEFAULT_* constants.
             * Add Perl::Tidy to DevelopSuggests and add tidy exceptions.
