@@ -15,7 +15,7 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   # ABSTRACT: Ensure that the environment variables match what you need, or abort.
   
-  our $VERSION = '0.016';
+  our $VERSION = '0.018';
   
   # We define our own import routine because
   # this is the point (when `use Env::Assert` is called)
@@ -51,7 +51,17 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   =pod
   
+  =encoding utf8
+  
   =for :stopwords env filepath filepaths
+  
+  =head1 NAME
+  
+  Env::Assert - Ensure that the environment variables match what you need, or abort
+  
+  =head1 VERSION
+  
+  version 0.017
   
   =head1 SYNOPSIS
   
@@ -145,10 +155,20 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   There is also script F<envdot> which can turn F<.env> file's content
   into environment variables for different shells.
   
+  =head1 AUTHOR
+  
+  Mikko Koivunalho <mikkoi@cpan.org>
+  
+  =head1 COPYRIGHT AND LICENSE
+  
+  This software is copyright (c) 2023 by Mikko Koivunalho.
+  
+  This is free software; you can redistribute it and/or modify it under
+  the same terms as the Perl 5 programming language system itself.
+  
   =cut
   
   1;
-  
   __END__
 ENV_ASSERT
 
@@ -163,7 +183,11 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   
   # ABSTRACT: The functionality of Env::Assert and bin/envassert.
   
-  our $VERSION = '0.016';
+  our $VERSION = '0.018';
+  
+  =pod
+  
+  =encoding utf8
   
   =for :stopwords env filepath filepaths params
   
@@ -171,56 +195,60 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   
   use Exporter 'import';
   our @EXPORT_OK = qw(
-      assert
-      report_errors
-      file_to_desc
-      ENV_ASSERT_MISSING_FROM_ENVIRONMENT
-      ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
-      ENV_ASSERT_MISSING_FROM_DEFINITION
+    assert
+    report_errors
+    file_to_desc
+    ENV_ASSERT_MISSING_FROM_ENVIRONMENT
+    ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
+    ENV_ASSERT_MISSING_FROM_DEFINITION
   );
   our %EXPORT_TAGS = (
       'all' => [
           qw(
-              assert
-              report_errors
-              file_to_desc
-              ENV_ASSERT_MISSING_FROM_ENVIRONMENT
-              ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
-              ENV_ASSERT_MISSING_FROM_DEFINITION
+            assert
+            report_errors
+            file_to_desc
+            ENV_ASSERT_MISSING_FROM_ENVIRONMENT
+            ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
+            ENV_ASSERT_MISSING_FROM_DEFINITION
           )
       ],
       'constants' => [
           qw(
-              ENV_ASSERT_MISSING_FROM_ENVIRONMENT
-              ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
-              ENV_ASSERT_MISSING_FROM_DEFINITION
+            ENV_ASSERT_MISSING_FROM_ENVIRONMENT
+            ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
+            ENV_ASSERT_MISSING_FROM_DEFINITION
           )
       ],
   );
   
-  use Cwd qw( abs_path );
+  use Cwd     qw( abs_path );
   use English qw( -no_match_vars );
   use File::Spec;
   use IO::File;
   use English qw( -no_match_vars );    # Avoids regex performance penalty in perl 5.18 and earlier
   use Carp;
   
-  use constant  {
-      ENV_ASSERT_MISSING_FROM_ENVIRONMENT => 1,
+  use constant {
+      ENV_ASSERT_MISSING_FROM_ENVIRONMENT    => 1,
       ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE => 2,
-      ENV_ASSERT_MISSING_FROM_DEFINITION => 3,
+      ENV_ASSERT_MISSING_FROM_DEFINITION     => 3,
   };
   
-  use constant  {
+  use constant {
       DEFAULT_PARAMETER_BREAK_AT_FIRST_ERROR => 0,
-      INDENT => q{    },
+      DEFAULT_REQUIRED                       => 1,
+      DEFAULT_REGEXP_ANY                     => q{^.*$},
+      INDENT                                 => q{    },
   };
   
-  =head1 STATUS
+  =head1 NAME
   
-  Package Env::Assert is currently being developed so changes in the API are possible,
-  though not likely.
+  Env::Assert::Functions - The functionality of Env::Assert and bin/envassert.
   
+  =head1 VERSION
+  
+  version 0.017
   
   =head1 SYNOPSIS
   
@@ -241,6 +269,10 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
           print report_errors( $r->{'errors'} );
       }
   
+  =head1 STATUS
+  
+  Package Env::Assert is currently being developed so changes in the API are possible,
+  though not likely.
   
   =head1 NOTES
   
@@ -276,9 +308,9 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   =cut
   
   sub assert {
-      my ($env, $want, $params) = @_;
-      $params = {} if ! $params;
-      croak 'Invalid options. Not a hash' if( ref $env ne 'HASH' || ref $want ne 'HASH' );
+      my ( $env, $want, $params ) = @_;
+      $params = {} if !$params;
+      croak 'Invalid options. Not a hash' if ( ref $env ne 'HASH' || ref $want ne 'HASH' );
   
       # Set default options
       $params->{'break_at_first_error'} //= DEFAULT_PARAMETER_BREAK_AT_FIRST_ERROR;
@@ -287,41 +319,44 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
       my %errors;
       my $vars = $want->{'variables'};
       my $opts = $want->{'options'};
-      foreach my $var_name (keys %{ $vars }) {
-          my $var = $vars->{$var_name};
-          my $required = $var->{'required'}//1;
-          my $regexp = $var->{'regexp'}//q{.*};
-          if( ( $opts->{'exact'} || $required ) && ! defined $env->{$var_name} ) {
+      foreach my $var_name ( keys %{$vars} ) {
+          my $env_var  = $vars->{$var_name};
+          my $required = $env_var->{'required'} // DEFAULT_REQUIRED;
+          my $regexp   = $env_var->{'regexp'}   // DEFAULT_REGEXP_ANY;
+          if (    # If var is required we must have it or error
+              $required && !defined $env->{$var_name}
+          ) {
               $success = 0;
-              $errors{'variables'}->{ $var_name } = {
-                  type => ENV_ASSERT_MISSING_FROM_ENVIRONMENT,
+              $errors{'variables'}->{$var_name} = {
+                  type    => ENV_ASSERT_MISSING_FROM_ENVIRONMENT,
                   message => "Variable $var_name is missing from environment",
               };
-              goto EXIT if( $params->{'break_at_first_error'} );
-          }
-          elsif( $env->{$var_name} !~ m/$regexp/msx ) {
+              goto EXIT if ( $params->{'break_at_first_error'} );
+          } elsif (    # if var is not required but it exists, it must match wanted regexp
+              defined $env->{$var_name} && $env->{$var_name} !~ m/$regexp/msx
+          ) {
               $success = 0;
-              $errors{'variables'}->{ $var_name } = {
-                  type => ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE,
+              $errors{'variables'}->{$var_name} = {
+                  type    => ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE,
                   message => "Variable $var_name has invalid content",
               };
-              goto EXIT if( $params->{'break_at_first_error'} );
+              goto EXIT if ( $params->{'break_at_first_error'} );
           }
       }
-      if( $opts->{'exact'} ) {
-          foreach my $var_name (keys %{ $env }) {
-              if( ! exists $vars->{ $var_name } ) {
+      if ( $opts->{'exact'} ) {
+          foreach my $var_name ( keys %{$env} ) {
+              if ( !exists $vars->{$var_name} ) {
                   $success = 0;
-                  $errors{'variables'}->{ $var_name } = {
-                      type => ENV_ASSERT_MISSING_FROM_DEFINITION,
+                  $errors{'variables'}->{$var_name} = {
+                      type    => ENV_ASSERT_MISSING_FROM_DEFINITION,
                       message => "Variable $var_name is missing from description",
                   };
-                  goto EXIT if( $params->{'break_at_first_error'} );
+                  goto EXIT if ( $params->{'break_at_first_error'} );
               }
           }
       }
   
-      EXIT:
+    EXIT:
       return { success => $success, errors => \%errors, };
   }
   
@@ -335,11 +370,10 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
       my ($errors) = @_;
       my $out = q{};
       $out .= sprintf "Environment Assert: ERRORS:\n";
-      foreach my $error_area_name (sort keys %{ $errors }) {
+      foreach my $error_area_name ( sort keys %{$errors} ) {
           $out .= sprintf "%s%s:\n", INDENT, $error_area_name;
-          foreach my $error_key (sort keys %{ $errors->{$error_area_name} }) {
-              $out .= sprintf "%s%s: %s\n", INDENT . INDENT, $error_key,
-                  $errors->{$error_area_name}->{$error_key}->{'message'};
+          foreach my $error_key ( sort keys %{ $errors->{$error_area_name} } ) {
+              $out .= sprintf "%s%s: %s\n", INDENT . INDENT, $error_key, $errors->{$error_area_name}->{$error_key}->{'message'};
           }
       }
       return $out;
@@ -355,9 +389,9 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
       my @rows = @_;
       my %desc = ( 'options' => {}, 'variables' => {}, );
       foreach (@rows) {
-          # This is envassert meta command
+  
           ## no critic (RegularExpressions::ProhibitComplexRegexes)
-          if(
+          if (    # This is envassert meta command
               m{
               ^ [[:space:]]{0,} [#]{2}
               [[:space:]]{1,} envassert [[:space:]]{1,}
@@ -366,32 +400,21 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
               }msx
           ) {
               my $opts = _interpret_opts( $LAST_PAREN_MATCH{opts} );
-              foreach ( keys %{ $opts } ) {
+              foreach ( keys %{$opts} ) {
                   $desc{'options'}->{$_} = $opts->{$_};
               }
-          } elsif(
-              # This is comment row
-              m{
-                  ^ [[:space:]]{0,} [#]{1} .* $
-              }msx
+          } elsif (    # This is comment row
+              m{ ^ [[:space:]]{0,} [#]{1} .* $ }msx
           ) {
-              1;
-          } elsif(
-              # This is empty row
-              m{
-                  ^ [[:space:]]{0,} $
-              }msx
+              1;       # Just move to the next row
+          } elsif (    # This is empty row
+              m{ ^ [[:space:]]{0,} $ }msx
           ) {
-              1;
-          } elsif(
-              # This is env var description
-              m{
-                  ^ (?<name> [^=]{1,}) = (?<value> .*) $
-              }msx
+              1;       # Just move to the next row
+          } elsif (    # This is env var description
+              m{ ^ (?<name> [^=]{1,}) = (?<value> .*) $ }msx
           ) {
-              $desc{'variables'}->{ $LAST_PAREN_MATCH{name} } = {
-                  regexp => $LAST_PAREN_MATCH{value}
-              };
+              $desc{'variables'}->{ $LAST_PAREN_MATCH{name} } = { regexp => $LAST_PAREN_MATCH{value} };
           }
       }
       return \%desc;
@@ -403,11 +426,10 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
       my ($opts_str) = @_;
       my @opts = split qr{
           [[:space:]]{0,} [,] [[:space:]]{0,}
-          }msx,
-      $opts_str;
+          }msx, $opts_str;
       my %opts;
       foreach (@opts) {
-          my ($key, $val) = split qr/=/msx;
+          my ( $key, $val ) = split qr/=/msx;
           $opts{$key} = $val;
       }
       return \%opts;
@@ -423,6 +445,17 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   Read environment variables from a F<.env> file directly into you program.
   There is also script F<envdot> which can turn F<.env> file's content
   into environment variables for different shells.
+  
+  =head1 AUTHOR
+  
+  Mikko Koivunalho <mikkoi@cpan.org>
+  
+  =head1 COPYRIGHT AND LICENSE
+  
+  This software is copyright (c) 2023 by Mikko Koivunalho.
+  
+  This is free software; you can redistribute it and/or modify it under
+  the same terms as the Perl 5 programming language system itself.
   
   =cut
   
@@ -4406,7 +4439,7 @@ use open ':std', IO => ':encoding(UTF-8)';
 
 # PODNAME: envassert
 
-our $VERSION = '0.015';
+our $VERSION = '0.017';
 
 use English      qw( -no_match_vars );                   # Avoids regex performance penalty in perl 5.18 and earlier
 use Getopt::Long qw( :config auto_version auto_help );
@@ -4424,18 +4457,17 @@ use constant {
     INDENT            => q{    },
 };
 
-my $man = 0;
-my $break_at_first_error;
-my $env_desc_filename = ENV_DESC_FILENAME;
+my $man                  = 0;
+my $break_at_first_error = 0;
+my $env_desc_filename    = ENV_DESC_FILENAME;
 my $exact;
 my $stdin = 0;
 GetOptions(
     'man'                     => \$man,
     'break-at-first-error|b!' => \$break_at_first_error,
-    'env-description|e=s'     =>,
-    \$env_desc_filename,
-    'exact|x!' => \$exact,
-    'stdin!'   => \$stdin,
+    'env-description|e=s'     => \$env_desc_filename,
+    'exact|x!'                => \$exact,
+    'stdin!'                  => \$stdin,
 ) or pod2usage(2);
 pod2usage( -exitval => 0, -verbose => 2 ) if $man;
 
@@ -4444,8 +4476,7 @@ sub main {
     my @env_desc_rows;
     if ($stdin) {
         @env_desc_rows = <>;
-    }
-    else {
+    } else {
         open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
         @env_desc_rows = <$fh>;
         close $fh or croak "Cannot close file '$env_desc_filename'";
@@ -4454,7 +4485,7 @@ sub main {
     my $desc = file_to_desc(@env_desc_rows);
     my %parameters;
     $parameters{'break_at_first_error'} = $break_at_first_error
-      if defined $break_at_first_error;
+      if $break_at_first_error;
     $desc->{'options'}->{'exact'} = $exact
       if defined $exact;
     my $r = assert( \%ENV, $desc, \%parameters );
@@ -4472,28 +4503,68 @@ __END__
 
 =pod
 
-=encoding UTF-8
+=for stopwords env envassert envdesc
 
 =head1 NAME
 
 envassert - Ensure that the environment variables match what you need, or abort.
-
-=head1 VERSION
-
-version 0.015
 
 =head1 SYNOPSIS
 
 envassert [options]
 
 Options:
-    --help
-    --man
-    --version
-    --break-at-first-error, -b
-    --env-description, -e
-    --exact, -x
-    --stdin, -s
+
+    --help                      Print this message
+    --man                       Show man page
+    --version                   Print version
+
+    --break-at-first-error, -b  Report first error and break processing
+    --env-description, -e       Filepath to Environment Description file
+    --exact, -x                 Do not allow unknown variables
+    --stdin, -s                 Read Env Desc from STDIN, not from file
+
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help>
+
+Print a brief help message and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--version>
+
+Prints the version and exits.
+
+=item B<-b>, B<--break-at-first-error>
+
+Break checking at the first error and report back.
+Default: false
+
+=item B<-e>, B<--env-description>
+
+Path to file which has the environment description.
+Default: .envdesc
+
+=item B<-x>, B<--exact>
+
+Fail check if environment contains variables not defined in environment description.
+This option will override the equivalent option in .envdesc file.
+Default: false
+
+=item B<-s>, B<--stdin>
+
+Read environment description from STDIN, not from a file.
+Incompatible with option B<--env-description>.
+Default: false
+
+=back
+
 
 =head1 DESCRIPTION
 
@@ -4586,51 +4657,6 @@ include F<envassert> in a docker container build.
     curl -LSs -o envassert https://raw.githubusercontent.com/mikkoi/env-assert/main/envassert.self-contained
     chmod +x ./envassert
 
-=for stopwords env envassert envdesc
-
-=head1 NAME
-
-envassert - Ensure that the environment variables match what you need, or abort.
-
-=head1 OPTIONS
-
-=over 8
-
-=item B<--help>
-
-Print a brief help message and exits.
-
-=item B<--man>
-
-Prints the manual page and exits.
-
-=item B<--version>
-
-Prints the version and exits.
-
-=item B<-b>, B<--break-at-first-error>
-
-Break checking at the first error and report back.
-Default: false
-
-=item B<-e>, B<--env-description>
-
-Path to file which has the environment description.
-Default: .envdesc
-
-=item B<-x>, B<--exact>
-
-Fail check if environment contains variables not defined in environment description.
-This option will override the equivalent option in .envdesc file.
-Default: false
-
-=item B<-s>, B<--stdin>
-
-Read environment description from STDIN, not from a file.
-Incompatible with option B<--env-description>.
-Default: false
-
-=back
 
 =head1 EXAMPLES
 
@@ -4644,7 +4670,7 @@ Default: false
 
     #!/usr/bin/env sh
     # Ensure we have the required environment setup.
-    envassert <<'EOF'
+    envassert --stdin <<'EOF'
     NUMERIC_VAR=^[[:digit:]]+$
     TIME_VAR=^\d{2}:\d{2}:\d{2}$
     EOF
@@ -4660,16 +4686,5 @@ L<Env::Dot> is a "sister" to Env::Assert.
 Read environment variables from a F<.env> file directly into you program.
 There is also script F<envdot> which can turn F<.env> file's content
 into environment variables for different shells.
-
-=head1 AUTHOR
-
-Mikko Koivunalho <mikkoi@cpan.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2023 by Mikko Koivunalho.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
 
 =cut
