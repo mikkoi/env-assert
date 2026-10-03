@@ -254,7 +254,12 @@ sub _interpret_opts {
         }msx, $opts_str;
     my %opts;
     foreach (@opts) {
-        my ( $key, $val ) = split qr/=/msx;
+        my ( $key, $val ) = split qr{
+        [[:space:]]{0,} [=] [[:space:]]{0,}
+        }msx;
+        $val        = $val // 1;
+        $val        = 1 if ( $val eq 'true'  || $val eq 'True' );
+        $val        = 0 if ( $val eq 'false' || $val eq 'False' );
         $opts{$key} = $val;
     }
     return \%opts;

@@ -11,6 +11,20 @@ use Env::Assert::Functions qw( );
 subtest_streamed 'Private Subroutine _interpret_opts()' => sub {
 
     {
+        my $opts_str = q{};
+        my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
+        my %expected;
+        T2->is( $opts, \%expected, 'Read options successfully' );
+    }
+
+    {
+        my $opts_str = 'exact';
+        my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
+        my %expected = ( exact => 1, );
+        T2->is( $opts, \%expected, 'Read options successfully' );
+    }
+
+    {
         my $opts_str = 'exact=1';
         my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
         my %expected = ( exact => 1, );
@@ -39,7 +53,6 @@ subtest_streamed 'Private Subroutine _interpret_opts()' => sub {
     }
 
     {
-        # Key alone is treated as a boolean setting
         my $opts_str = 'exact=1,234';
         my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
         my %expected = (
@@ -50,8 +63,7 @@ subtest_streamed 'Private Subroutine _interpret_opts()' => sub {
     }
 
     {
-        # Key alone is treated as a boolean setting
-        my $opts_str = 'exact=1, some_true, other_true, other_false=0';
+        my $opts_str = 'exact=1, some_true, other_true, other_false = 0';
         my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
         my %expected = (
             exact       => 1,
@@ -63,7 +75,17 @@ subtest_streamed 'Private Subroutine _interpret_opts()' => sub {
     }
 
     {
-        my $opts_str = 'key_1=1,key_2=234, key_3=text , key_4=more text, key_5=';
+        my $opts_str = 'exact = 0, words_and_space = one two three_go';
+        my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
+        my %expected = (
+            exact           => 0,
+            words_and_space => q{one two three_go},
+        );
+        T2->is( $opts, \%expected, 'Read options successfully' );
+    }
+
+    {
+        my $opts_str = 'key_1=1,key_2=234, key_3 =text , key_4= more text, key_5= ';
         my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
         my %expected = (
             key_1 => 1,
