@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.018     2026-10-03 22:43:10+02:00 Europe/Stockholm
             * Change naming in API, add metacommand var:required.
             * Migrate to Test2::V1 t/env-assert.t.
             * Make tidy t/env-assert.t.
