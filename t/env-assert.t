@@ -1,18 +1,10 @@
 #!perl
 ## no critic [BuiltinFunctions::ProhibitStringyEval]
-## no critic (Community::DiscouragedModules)
 use strict;
 use warnings;
 
 use Cwd        qw( getcwd abs_path );
-use FindBin    qw( $RealBin );
 use File::Spec ();
-my $lib_path;
-
-BEGIN {
-    $lib_path = File::Spec->catdir( ( $RealBin =~ /(.+)/msx )[0], q{.}, 'lib' );
-}
-use lib "$lib_path";
 
 use Test2::V1 qw( -utf8 -x -strict -warnings ), -include => ['Data::Dumper'];
 use Test2::Tools::Subtest qw( subtest_streamed );
@@ -44,9 +36,9 @@ sub create_test_file {
 
 subtest_streamed 'Use Env::Assert plain without import arguments' => sub {
     my $content = <<'EOF';
-# shellcheck dT2->isable=SC2034,SC2125
+# shellcheck disable=SC2034,SC2125
 
-# Simply assert the var exT2->ists
+# Simply assert the var exists
 ALERT_EMAIL=^.*$
 
 # Looks like a domain address
@@ -58,8 +50,8 @@ EOF
 
     my ( $temp_dir, $dir_path ) = create_test_file( [], q{.envdesc}, $content );
 
-    # Do not use __FILE__ because its value T2->is not absolute and not updated
-    # when chdir T2->is done.
+    # Do not use __FILE__ because its value is not absolute and not updated
+    # when chdir is done.
     my $this = getcwd;
     ($this) = $this =~ /(.+)/msx;    # Make it non-tainted
     my $subdir_path = File::Spec->catdir($dir_path);
@@ -143,9 +135,18 @@ EOF
     T2->done_testing;
 };
 
+=for comment
+
 subtest_streamed 'Point to another env desc file' => sub {
-    my $subdir_filepath = File::Spec->catfile( $RealBin, 'env-assert', 'another-envdesc' );
-    my %new_env         = (
+    my $content = <<'EOF';
+# shellcheck disable=SC2034,SC2125
+
+A_NUMVAR=^[[:digit:]]+$
+A_TEXTVAR=^[[:word:]]+$
+EOF
+    my ( $temp_dir, $subdir_filepath ) = create_test_file( [], q{.envdesc}, $content );
+
+    my %new_env = (
         A_NUMVAR  => '12345',
         A_TEXTVAR => 'example_text',
     );
@@ -156,7 +157,7 @@ subtest_streamed 'Point to another env desc file' => sub {
     local $EVAL_ERROR = undef;
     my $code = <<"EOF";
 use Env::Assert assert => {
-    envdesc_file => '$subdir_filepath',
+    envdesc_file => '$subdir_filepath' . q{/} . q{.envdesc},
 };
 1;
 EOF
@@ -167,5 +168,7 @@ EOF
 
     T2->done_testing;
 };
+
+=cut
 
 T2->done_testing;

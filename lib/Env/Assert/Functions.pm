@@ -26,6 +26,9 @@ our @EXPORT_OK = qw(
   ENV_ASSERT_MISSING_FROM_ENVIRONMENT
   ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
   ENV_ASSERT_MISSING_FROM_DEFINITION
+  OPTION_ENV_EXACT
+  OPTION_VAR_REGEXP
+  OPTION_VAR_REQUIRED
 );
 our %EXPORT_TAGS = (
     'all' => [
@@ -36,6 +39,9 @@ our %EXPORT_TAGS = (
           ENV_ASSERT_MISSING_FROM_ENVIRONMENT
           ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
           ENV_ASSERT_MISSING_FROM_DEFINITION
+          OPTION_ENV_EXACT
+          OPTION_VAR_REGEXP
+          OPTION_VAR_REQUIRED
         )
     ],
     'constants' => [
@@ -43,6 +49,9 @@ our %EXPORT_TAGS = (
           ENV_ASSERT_MISSING_FROM_ENVIRONMENT
           ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
           ENV_ASSERT_MISSING_FROM_DEFINITION
+          OPTION_ENV_EXACT
+          OPTION_VAR_REGEXP
+          OPTION_VAR_REQUIRED
         )
     ],
 );
@@ -67,6 +76,16 @@ use constant {
     INDENT                                 => q{    },
 };
 
+use constant {
+    OPTION_ENV_EXACT            => q{env:exact},
+    OPTION_VAR_REGEXP           => q{var:regexp},
+    OPTION_VAR_REQUIRED         => q{var:required},
+    DEFAULT_OPTION_ENV_EXACT    => 0,
+    DEFAULT_OPTION_VAR_REQUIRED => 1,
+};
+#
+my %ENVASSERT_OPTIONS = map { $_ => 1 } ( OPTION_ENV_EXACT(), OPTION_VAR_REQUIRED() );
+
 =head1 NAME
 
 Env::Assert::Functions - The functionality of Env::Assert and bin/envassert.
@@ -81,10 +100,10 @@ version 0.018
 
     my %want = (
         options => {
-            exact => 1,
+            'env:exact' => 1,
         },
         variables => {
-            USER => { regexp => '^[[:word:]]{1}$', required => 1 },
+            USER => { 'var:regexp' => '^[[:word:]]{1}$', 'var:required' => 1 },
         },
     );
     my %parameters;
@@ -142,12 +161,12 @@ sub assert {
 
     my $success = 1;
     my %errors;
-    my $vars = $want->{'variables'};
-    my $opts = $want->{'options'};
+    my $vars = $want->{'variables'} ? $want->{'variables'} : $want->{'vars'};
+    my $opts = $want->{'options'}   ? $want->{'options'}   : $want->{'opts'};
     foreach my $var_name ( keys %{$vars} ) {
         my $env_var  = $vars->{$var_name};
-        my $required = $env_var->{'required'} // DEFAULT_REQUIRED;
-        my $regexp   = $env_var->{'regexp'}   // DEFAULT_REGEXP_ANY;
+        my $required = $env_var->{ OPTION_VAR_REQUIRED() } // DEFAULT_OPTION_VAR_REQUIRED();
+        my $regexp   = $env_var->{ OPTION_VAR_REGEXP() }   // DEFAULT_REGEXP_ANY;
         if (    # If var is required we must have it or error
             $required && !defined $env->{$var_name}
         ) {
@@ -168,7 +187,7 @@ sub assert {
             goto EXIT if ( $params->{'break_at_first_error'} );
         }
     }
-    if ( $opts->{'exact'} ) {
+    if ( $opts->{ OPTION_ENV_EXACT() } ) {
         foreach my $var_name ( keys %{$env} ) {
             if ( !exists $vars->{$var_name} ) {
                 $success = 0;
@@ -211,38 +230,66 @@ Extract an environment description from a F<.envdesc> file.
 =cut
 
 sub file_to_desc {
-    my @rows = @_;
-    my %desc = ( 'options' => {}, 'variables' => {}, );
+    my ( $fp, @rows ) = @_;
+    my %env_options =
+      ( OPTION_ENV_EXACT() => DEFAULT_OPTION_ENV_EXACT(), );    # Options related to reading the file. Applied as they are read.
+    my %var_options =
+      ( OPTION_VAR_REQUIRED() => DEFAULT_OPTION_VAR_REQUIRED(), )
+      ;    # Options related to reading the next variable definition. Reset to defaults after reading.
+    my %variables;
+    my $prg     = 'envassert';
+    my $row_num = 1;
     foreach (@rows) {
 
         ## no critic (RegularExpressions::ProhibitComplexRegexes)
         if (    # This is envassert meta command
             m{
             ^ [[:space:]]{0,} [#]{2}
-            [[:space:]]{1,} envassert [[:space:]]{1,}
+            [[:space:]]{1,} $prg [[:space:]]{1,}
             [(] opts: [[:space:]]{0,} (?<opts> .*) [)]
             [[:space:]]{0,} $
             }msx
         ) {
             my $opts = _interpret_opts( $LAST_PAREN_MATCH{opts} );
+            foreach my $key ( keys %{$opts} ) {
+
+                # Compatibility issues:
+                $key = 'env:' . $key if ( $key eq 'exact' );
+                $key = 'var:' . $key if ( $key eq 'required' );
+                if ( !exists $ENVASSERT_OPTIONS{$key} ) {
+                    my $err = "Unknown $prg option: '$key'";
+                    croak _create_error_msg( $err, $row_num, $fp );
+                }
+            }
             foreach ( keys %{$opts} ) {
-                $desc{'options'}->{$_} = $opts->{$_};
+                $env_options{$_} = $opts->{$_} if (m/^env/msx);
+                $var_options{$_} = $opts->{$_} if (m/^var/msx);
             }
         } elsif (    # This is comment row
             m{ ^ [[:space:]]{0,} [#]{1} .* $ }msx
         ) {
-            1;       # Just move to the next row
+            next;
         } elsif (    # This is empty row
             m{ ^ [[:space:]]{0,} $ }msx
         ) {
-            1;       # Just move to the next row
+            next;
         } elsif (    # This is env var description
             m{ ^ (?<name> [^=]{1,}) = (?<value> .*) $ }msx
         ) {
-            $desc{'variables'}->{ $LAST_PAREN_MATCH{name} } = { regexp => $LAST_PAREN_MATCH{value} };
+            $variables{ $LAST_PAREN_MATCH{name} } = {
+                OPTION_VAR_REGEXP()   => $LAST_PAREN_MATCH{value},
+                OPTION_VAR_REQUIRED() => $var_options{ OPTION_VAR_REQUIRED() },
+            };
+
+            # The var:<value> options can only apply to one subsequent var row.
+            # We reset the var options back to defaults.
+            $var_options{ OPTION_VAR_REQUIRED() } = DEFAULT_OPTION_VAR_REQUIRED();
         }
+    } continue {
+        $row_num++;
     }
-    return \%desc;
+
+    return opts => \%env_options, vars => \%variables;
 }
 
 # Private subroutines
@@ -258,11 +305,23 @@ sub _interpret_opts {
         [[:space:]]{0,} [=] [[:space:]]{0,}
         }msx;
         $val        = $val // 1;
-        $val        = 1 if ( $val eq 'true'  || $val eq 'True' );
-        $val        = 0 if ( $val eq 'false' || $val eq 'False' );
+        $val        = 1 if ( $val eq 'true'  || $val eq 'True'  || $val eq '1' );
+        $val        = 0 if ( $val eq 'false' || $val eq 'False' || $val eq '0' );
         $opts{$key} = $val;
     }
     return \%opts;
+}
+
+# create an error message (exception) from the three elements: err, line and filepath.
+sub _create_error_msg {
+    my ( $err, $line, $filepath ) = @_;
+    if ( !$err ) {
+        croak 'Parameter error: missing parameter \'err\'';
+    }
+    if ( !$line && $filepath ) {
+        croak 'Parameter error: missing parameter \'line\'';
+    }
+    return "${err}!" . ( defined $line ? " line ${line}" : q{} ) . ( defined $filepath ? " file '${filepath}'" : q{} );
 }
 
 =head1 DEPENDENCIES
