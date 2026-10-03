@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Add DEFAULT_* constants.
             * Add Perl::Tidy to DevelopSuggests and add tidy exceptions.
             * Make tidy t/env-assert-public-assert.t.
             * Allow cuddled-else in Perl Tidy.

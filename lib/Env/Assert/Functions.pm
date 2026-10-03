@@ -62,6 +62,8 @@ use constant {
 
 use constant {
     DEFAULT_PARAMETER_BREAK_AT_FIRST_ERROR => 0,
+    DEFAULT_REQUIRED                       => 1,
+    DEFAULT_REGEXP_ANY                     => q{^.*$},
     INDENT                                 => q{    },
 };
 
@@ -144,8 +146,8 @@ sub assert {
     my $opts = $want->{'options'};
     foreach my $var_name ( keys %{$vars} ) {
         my $env_var  = $vars->{$var_name};
-        my $required = $env_var->{'required'} // 1;
-        my $regexp   = $env_var->{'regexp'}   // q{.*};
+        my $required = $env_var->{'required'} // DEFAULT_REQUIRED;
+        my $regexp   = $env_var->{'regexp'}   // DEFAULT_REGEXP_ANY;
         if ( ( $opts->{'exact'} || $required ) && !defined $env->{$var_name} ) {
             $success = 0;
             $errors{'variables'}->{$var_name} = {
