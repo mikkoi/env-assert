@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Migrate to Test2::V1 t/env-assert.t.
             * Make tidy t/env-assert.t.
             * Improve Env::Assert::Functions::_interpret_opts.
             * More examples to t/env-assert-private.t.

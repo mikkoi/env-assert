@@ -14,7 +14,8 @@ BEGIN {
 }
 use lib "$lib_path";
 
-use Test2::V0;
+use Test2::V1 qw( -utf8 -x -strict -warnings ), -include => ['Data::Dumper'];
+use Test2::Tools::Subtest qw( subtest_streamed );
 
 use Carp       qw( croak );
 use English    qw( -no_match_vars );    # Avoids regex performance
@@ -41,11 +42,11 @@ sub create_test_file {
     return $dir, $dir_path;
 }
 
-subtest 'Use Env::Assert plain without import arguments' => sub {
+subtest_streamed 'Use Env::Assert plain without import arguments' => sub {
     my $content = <<'EOF';
-# shellcheck disable=SC2034,SC2125
+# shellcheck dT2->isable=SC2034,SC2125
 
-# Simply assert the var exists
+# Simply assert the var exT2->ists
 ALERT_EMAIL=^.*$
 
 # Looks like a domain address
@@ -57,12 +58,12 @@ EOF
 
     my ( $temp_dir, $dir_path ) = create_test_file( [], q{.envdesc}, $content );
 
-    # Do not use __FILE__ because its value is not absolute and not updated
-    # when chdir is done.
+    # Do not use __FILE__ because its value T2->is not absolute and not updated
+    # when chdir T2->is done.
     my $this = getcwd;
     ($this) = $this =~ /(.+)/msx;    # Make it non-tainted
     my $subdir_path = File::Spec->catdir($dir_path);
-    diag 'Change to ' . $subdir_path;
+    T2->diag( 'Change to ' . $subdir_path );
     chdir $subdir_path || croak;
 
     my %new_env = (
@@ -79,15 +80,15 @@ use Env::Assert;
 1;
 EOF
     my $r = eval $code;
-    is( $EVAL_ERROR, q{}, 'use Env::Assert okay' );
-    is( $r,          1,   'evaled okay' );
+    T2->is( $EVAL_ERROR, q{}, 'use Env::Assert okay' );
+    T2->is( $r,          1,   'evaled okay' );
 
     chdir $this;
 
-    done_testing;
+    T2->done_testing;
 };
 
-subtest 'Wrong import argument' => sub {
+subtest_streamed 'Wrong import argument' => sub {
 
     my %new_env = (
         ALERT_EMAIL  => 'alert@example.com',
@@ -104,15 +105,15 @@ use Env::Assert qw(not_assert);
 1;
 EOF
     my $r = eval $code;
-    like( $EVAL_ERROR, qr/^Unknown \s argument \s 'not_assert' .*$/msx, 'use Env::Assert failed' );
-    is( $r, undef, 'evaled okay' );
+    T2->match( $EVAL_ERROR, qr/^Unknown \s argument \s 'not_assert' .*$/msx, 'use Env::Assert failed' );
+    T2->is( $r, undef, 'evaled okay' );
 
-    # is($EVAL_ERROR, q{}, 'use Env::Dot failed' );
+    # T2->is($EVAL_ERROR, q{}, 'use Env::Dot failed' );
 
-    done_testing;
+    T2->done_testing;
 };
 
-subtest 'Inline env desc file' => sub {
+subtest_streamed 'Inline env desc file' => sub {
     my %new_env = (
         NUMVAR  => '12345',
         TEXTVAR => 'example_text',
@@ -132,17 +133,17 @@ TEXTVAR=^\w+$
 1;
 EOF
     my $r = eval $code;
-    is( $EVAL_ERROR, q{}, 'use Env::Assert okay' );
-    is( $r,          1,   'evaled okay' );
+    T2->is( $EVAL_ERROR, q{}, 'use Env::Assert okay' );
+    T2->is( $r,          1,   'evaled okay' );
 
     # like($EVAL_ERROR, qr/^Unknown \s argument \s 'not_assert' .*$/msx, 'use Env::Assert failed' );
-    # is( $r, undef, 'evaled okay');
-    # is($EVAL_ERROR, q{}, 'use Env::Dot failed' );
+    # T2->is( $r, undef, 'evaled okay');
+    # T2->is($EVAL_ERROR, q{}, 'use Env::Dot failed' );
 
-    done_testing;
+    T2->done_testing;
 };
 
-subtest 'Point to another env desc file' => sub {
+subtest_streamed 'Point to another env desc file' => sub {
     my $subdir_filepath = File::Spec->catfile( $RealBin, 'env-assert', 'another-envdesc' );
     my %new_env         = (
         A_NUMVAR  => '12345',
@@ -161,10 +162,10 @@ use Env::Assert assert => {
 EOF
     local $EVAL_ERROR = undef;
     my $r = eval $code;
-    is( $EVAL_ERROR, q{}, 'use Env::Assert successful' );
-    is( $r,          1,   'evaled okay' );
+    T2->is( $EVAL_ERROR, q{}, 'use Env::Assert successful' );
+    T2->is( $r,          1,   'evaled okay' );
 
-    done_testing;
+    T2->done_testing;
 };
 
-done_testing;
+T2->done_testing;
