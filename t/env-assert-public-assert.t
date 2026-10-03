@@ -1,11 +1,13 @@
 #!perl
 use strict;
 use warnings;
-use Test2::V0;
+
+use Test2::V1 qw( -utf8 -x -strict -warnings ), -include => ['Data::Dumper'];
+use Test2::Tools::Subtest qw( subtest_streamed );
 
 use Env::Assert::Functions qw( assert :constants );
 
-subtest 'Externals' => sub {
+subtest_streamed 'Externals' => sub {
 
     {
         my %env  = ( USER => 'random_user', );
@@ -18,9 +20,9 @@ subtest 'Externals' => sub {
         my %opts = ();
 
         my $r = assert( \%env, \%want, \%opts );
-        is( $r->{'success'},                                   0,                                  'assert not success' );
-        is( keys %{ $r->{'errors'} },                          1,                                  'has errors' );
-        is( $r->{'errors'}->{'variables'}->{'USER'}->{'type'}, ENV_ASSERT_MISSING_FROM_DEFINITION, 'var missing from def' );
+        T2->is( $r->{'success'},                                   0,                                  'assert not success' );
+        T2->is( scalar keys %{ $r->{'errors'} },                   1,                                  'has errors' );
+        T2->is( $r->{'errors'}->{'variables'}->{'USER'}->{'type'}, ENV_ASSERT_MISSING_FROM_DEFINITION, 'var missing from def' );
     }
 
     {
@@ -36,9 +38,13 @@ subtest 'Externals' => sub {
         my %opts = ();
 
         my $r = assert( \%env, \%want, \%opts );
-        is( $r->{'success'},                                   0,                                      'assert not success' );
-        is( keys %{ $r->{'errors'} },                          1,                                      'has errors' );
-        is( $r->{'errors'}->{'variables'}->{'USER'}->{'type'}, ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE, 'invalid content in var' );
+        T2->is( $r->{'success'},                 0, 'assert not success' );
+        T2->is( scalar keys %{ $r->{'errors'} }, 1, 'has errors' );
+        T2->is(
+            $r->{'errors'}->{'variables'}->{'USER'}->{'type'},
+            ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE,
+            'invalid content in var'
+        );
     }
 
     {
@@ -54,9 +60,9 @@ subtest 'Externals' => sub {
         my %opts = ();
 
         my $r = assert( \%env, \%want, \%opts );
-        is( $r->{'success'},                                     0,                                   'assert not success' );
-        is( keys %{ $r->{'errors'} },                            1,                                   'has errors' );
-        is( $r->{'errors'}->{'variables'}->{'NOUSER'}->{'type'}, ENV_ASSERT_MISSING_FROM_ENVIRONMENT, 'var missing from env' );
+        T2->is( $r->{'success'},                                     0,                                   'assert not success' );
+        T2->is( scalar keys %{ $r->{'errors'} },                     1,                                   'has errors' );
+        T2->is( $r->{'errors'}->{'variables'}->{'NOUSER'}->{'type'}, ENV_ASSERT_MISSING_FROM_ENVIRONMENT, 'var missing from env' );
     }
 
     {
@@ -71,10 +77,10 @@ subtest 'Externals' => sub {
         my %opts = ( break_at_first_error => 0, );
 
         my $r = assert( \%env, \%want, \%opts );
-        is( $r->{'success'},                                     0,                                   'assert not success' );
-        is( scalar keys %{ $r->{'errors'}->{'variables'} },      2,                                   'has errors' );
-        is( $r->{'errors'}->{'variables'}->{'NOUSER'}->{'type'}, ENV_ASSERT_MISSING_FROM_ENVIRONMENT, 'var missing from env' );
-        is( $r->{'errors'}->{'variables'}->{'NOPATH'}->{'type'}, ENV_ASSERT_MISSING_FROM_ENVIRONMENT, 'var missing from env' );
+        T2->is( $r->{'success'},                                     0,                                   'assert not success' );
+        T2->is( scalar keys %{ $r->{'errors'}->{'variables'} },      2,                                   'has errors' );
+        T2->is( $r->{'errors'}->{'variables'}->{'NOUSER'}->{'type'}, ENV_ASSERT_MISSING_FROM_ENVIRONMENT, 'var missing from env' );
+        T2->is( $r->{'errors'}->{'variables'}->{'NOPATH'}->{'type'}, ENV_ASSERT_MISSING_FROM_ENVIRONMENT, 'var missing from env' );
     }
 
     {
@@ -96,12 +102,12 @@ subtest 'Externals' => sub {
         my %opts = ( break_at_first_error => 0, );
         my $r    = assert( \%env, \%want, \%opts );
 
-        ok( $r->{'success'}, 'assert success' );
-        is( $r->{'success'},     1, 'assert not success' );
-        is( %{ $r->{'errors'} }, 0, 'no errors' );
+        T2->ok( $r->{'success'}, 'assert success' );
+        T2->is( scalar keys %{ $r->{'errors'} }, 0, 'no errors' );
+        T2->diag( T2->Dumper( $r->{'errors'} ) );
     }
 
-    done_testing;
+    T2->done_testing;
 };
 
-done_testing;
+T2->done_testing;
