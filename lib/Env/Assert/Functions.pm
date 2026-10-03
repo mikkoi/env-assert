@@ -8,7 +8,7 @@ use 5.010;
 
 # ABSTRACT: The functionality of Env::Assert and bin/envassert.
 
-our $VERSION = '0.017';
+our $VERSION = '0.018';
 
 =pod
 
@@ -73,7 +73,7 @@ Env::Assert::Functions - The functionality of Env::Assert and bin/envassert.
 
 =head1 VERSION
 
-version 0.017
+version 0.018
 
 =head1 SYNOPSIS
 
