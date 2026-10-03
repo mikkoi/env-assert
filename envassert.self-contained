@@ -15,7 +15,7 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   # ABSTRACT: Ensure that the environment variables match what you need, or abort.
   
-  our $VERSION = '0.018';
+  our $VERSION = '0.019';
   
   # We define our own import routine because
   # this is the point (when `use Env::Assert` is called)
@@ -23,26 +23,24 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   use Carp;
   
-  use English qw( -no_match_vars ); # Avoids regex performance penalty in perl 5.18 and earlier
+  use English qw( -no_match_vars );    # Avoids regex performance penalty in perl 5.18 and earlier
   use open ':std', IO => ':encoding(UTF-8)';
   
   use Env::Assert::Functions qw( :all );
   
-  use constant {
-      ENV_DESC_FILENAME => '.envdesc',
-  };
+  use constant { ENV_DESC_FILENAME => '.envdesc', };
   
   # Handle exports
   {
       no warnings 'redefine';    ## no critic [TestingAndDebugging::ProhibitNoWarnings]
   
       sub import {
-          my ($class, $cmd, $args) = @_;
+          my ( $class, $cmd, $args ) = @_;
   
           # We also allow only: 'use Env::Assert;'
-          croak "Unknown argument '$cmd'" if( $cmd && $cmd ne 'assert' );
+          croak "Unknown argument '$cmd'" if ( $cmd && $cmd ne 'assert' );
   
-          if( ! assert_env( %{ $args } ) ) {
+          if ( !assert_env( %{$args} ) ) {
               croak 'Errors in environment detected.';
           }
           return;
@@ -61,7 +59,7 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
   
   =head1 VERSION
   
-  version 0.017
+  version 0.018
   
   =head1 SYNOPSIS
   
@@ -112,33 +110,33 @@ $fatpacked{"Env/Assert.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'ENV_
       my (%args) = @_;
       local $OUTPUT_AUTOFLUSH = 1;
   
-      my $break_at_first_error = $args{'break_at_first_error'}//0;
-      my $exact = $args{'exact'}//0;
+      my $break_at_first_error = $args{'break_at_first_error'} // 0;
+      my $exact                = $args{'exact'}                // 0;
   
       my @env_desc_rows;
-      if( $args{'envdesc'} ) {
+      if ( $args{'envdesc'} ) {
           my $content = $args{'envdesc'};
           open my $fh, q{<}, \$content
-              or croak 'Cannot open scalar envdesc content';
+            or croak 'Cannot open scalar envdesc content';
           @env_desc_rows = <$fh>;
           close $fh or croak 'Cannot close scalar envdesc content';
       } else {
-          my $env_desc_filename = $args{'envdesc_file'}//ENV_DESC_FILENAME;
+          my $env_desc_filename = $args{'envdesc_file'} // ENV_DESC_FILENAME;
           open my $fh, q{<}, $env_desc_filename or croak "Cannot open file '$env_desc_filename'";
           @env_desc_rows = <$fh>;
           close $fh or croak "Cannot close file '$env_desc_filename'";
       }
   
-      my $desc = file_to_desc( @env_desc_rows );
+      my %desc = file_to_desc(@env_desc_rows);
       my %parameters;
       $parameters{'break_at_first_error'} = $break_at_first_error
-          if defined $break_at_first_error;
-      $desc->{'options'}->{'exact'} = $exact
-          if defined $exact;
-      my $r = assert( \%ENV, $desc, \%parameters );
-      if( ! $r->{'success'} ) {
+        if defined $break_at_first_error;
+      $desc{'options'}->{OPTION_ENV_EXACT} = $exact
+        if defined $exact;
+      my $r = assert( \%ENV, \%desc, \%parameters );
+      if ( !$r->{'success'} ) {
           print {*STDERR} report_errors( $r->{'errors'} )
-              or croak 'Cannot print errors to STDERR';
+            or croak 'Cannot print errors to STDERR';
           return 0;
       }
       return 1;
@@ -183,7 +181,7 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   
   # ABSTRACT: The functionality of Env::Assert and bin/envassert.
   
-  our $VERSION = '0.018';
+  our $VERSION = '0.019';
   
   =pod
   
@@ -201,6 +199,9 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
     ENV_ASSERT_MISSING_FROM_ENVIRONMENT
     ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
     ENV_ASSERT_MISSING_FROM_DEFINITION
+    OPTION_ENV_EXACT
+    OPTION_VAR_REGEXP
+    OPTION_VAR_REQUIRED
   );
   our %EXPORT_TAGS = (
       'all' => [
@@ -211,6 +212,9 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
             ENV_ASSERT_MISSING_FROM_ENVIRONMENT
             ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
             ENV_ASSERT_MISSING_FROM_DEFINITION
+            OPTION_ENV_EXACT
+            OPTION_VAR_REGEXP
+            OPTION_VAR_REQUIRED
           )
       ],
       'constants' => [
@@ -218,6 +222,9 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
             ENV_ASSERT_MISSING_FROM_ENVIRONMENT
             ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
             ENV_ASSERT_MISSING_FROM_DEFINITION
+            OPTION_ENV_EXACT
+            OPTION_VAR_REGEXP
+            OPTION_VAR_REQUIRED
           )
       ],
   );
@@ -242,13 +249,23 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
       INDENT                                 => q{    },
   };
   
+  use constant {
+      OPTION_ENV_EXACT            => q{env:exact},
+      OPTION_VAR_REGEXP           => q{var:regexp},
+      OPTION_VAR_REQUIRED         => q{var:required},
+      DEFAULT_OPTION_ENV_EXACT    => 0,
+      DEFAULT_OPTION_VAR_REQUIRED => 1,
+  };
+  #
+  my %ENVASSERT_OPTIONS = map { $_ => 1 } ( OPTION_ENV_EXACT(), OPTION_VAR_REQUIRED() );
+  
   =head1 NAME
   
   Env::Assert::Functions - The functionality of Env::Assert and bin/envassert.
   
   =head1 VERSION
   
-  version 0.017
+  version 0.018
   
   =head1 SYNOPSIS
   
@@ -256,10 +273,10 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   
       my %want = (
           options => {
-              exact => 1,
+              'env:exact' => 1,
           },
           variables => {
-              USER => { regexp => '^[[:word:]]{1}$', required => 1 },
+              USER => { 'var:regexp' => '^[[:word:]]{1}$', 'var:required' => 1 },
           },
       );
       my %parameters;
@@ -317,12 +334,12 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   
       my $success = 1;
       my %errors;
-      my $vars = $want->{'variables'};
-      my $opts = $want->{'options'};
+      my $vars = $want->{'variables'} ? $want->{'variables'} : $want->{'vars'};
+      my $opts = $want->{'options'}   ? $want->{'options'}   : $want->{'opts'};
       foreach my $var_name ( keys %{$vars} ) {
           my $env_var  = $vars->{$var_name};
-          my $required = $env_var->{'required'} // DEFAULT_REQUIRED;
-          my $regexp   = $env_var->{'regexp'}   // DEFAULT_REGEXP_ANY;
+          my $required = $env_var->{ OPTION_VAR_REQUIRED() } // DEFAULT_OPTION_VAR_REQUIRED();
+          my $regexp   = $env_var->{ OPTION_VAR_REGEXP() }   // DEFAULT_REGEXP_ANY;
           if (    # If var is required we must have it or error
               $required && !defined $env->{$var_name}
           ) {
@@ -343,7 +360,7 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
               goto EXIT if ( $params->{'break_at_first_error'} );
           }
       }
-      if ( $opts->{'exact'} ) {
+      if ( $opts->{ OPTION_ENV_EXACT() } ) {
           foreach my $var_name ( keys %{$env} ) {
               if ( !exists $vars->{$var_name} ) {
                   $success = 0;
@@ -386,38 +403,66 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
   =cut
   
   sub file_to_desc {
-      my @rows = @_;
-      my %desc = ( 'options' => {}, 'variables' => {}, );
+      my ( $fp, @rows ) = @_;
+      my %env_options =
+        ( OPTION_ENV_EXACT() => DEFAULT_OPTION_ENV_EXACT(), );    # Options related to reading the file. Applied as they are read.
+      my %var_options =
+        ( OPTION_VAR_REQUIRED() => DEFAULT_OPTION_VAR_REQUIRED(), )
+        ;    # Options related to reading the next variable definition. Reset to defaults after reading.
+      my %variables;
+      my $prg     = 'envassert';
+      my $row_num = 1;
       foreach (@rows) {
   
           ## no critic (RegularExpressions::ProhibitComplexRegexes)
           if (    # This is envassert meta command
               m{
               ^ [[:space:]]{0,} [#]{2}
-              [[:space:]]{1,} envassert [[:space:]]{1,}
+              [[:space:]]{1,} $prg [[:space:]]{1,}
               [(] opts: [[:space:]]{0,} (?<opts> .*) [)]
               [[:space:]]{0,} $
               }msx
           ) {
               my $opts = _interpret_opts( $LAST_PAREN_MATCH{opts} );
+              foreach my $key ( keys %{$opts} ) {
+  
+                  # Compatibility issues:
+                  $key = 'env:' . $key if ( $key eq 'exact' );
+                  $key = 'var:' . $key if ( $key eq 'required' );
+                  if ( !exists $ENVASSERT_OPTIONS{$key} ) {
+                      my $err = "Unknown $prg option: '$key'";
+                      croak _create_error_msg( $err, $row_num, $fp );
+                  }
+              }
               foreach ( keys %{$opts} ) {
-                  $desc{'options'}->{$_} = $opts->{$_};
+                  $env_options{$_} = $opts->{$_} if (m/^env/msx);
+                  $var_options{$_} = $opts->{$_} if (m/^var/msx);
               }
           } elsif (    # This is comment row
               m{ ^ [[:space:]]{0,} [#]{1} .* $ }msx
           ) {
-              1;       # Just move to the next row
+              next;
           } elsif (    # This is empty row
               m{ ^ [[:space:]]{0,} $ }msx
           ) {
-              1;       # Just move to the next row
+              next;
           } elsif (    # This is env var description
               m{ ^ (?<name> [^=]{1,}) = (?<value> .*) $ }msx
           ) {
-              $desc{'variables'}->{ $LAST_PAREN_MATCH{name} } = { regexp => $LAST_PAREN_MATCH{value} };
+              $variables{ $LAST_PAREN_MATCH{name} } = {
+                  OPTION_VAR_REGEXP()   => $LAST_PAREN_MATCH{value},
+                  OPTION_VAR_REQUIRED() => $var_options{ OPTION_VAR_REQUIRED() },
+              };
+  
+              # The var:<value> options can only apply to one subsequent var row.
+              # We reset the var options back to defaults.
+              $var_options{ OPTION_VAR_REQUIRED() } = DEFAULT_OPTION_VAR_REQUIRED();
           }
+      } continue {
+          $row_num++;
       }
-      return \%desc;
+  
+      return opts => \%env_options, vars => \%variables;
   }
   
   # Private subroutines
@@ -429,10 +474,27 @@ $fatpacked{"Env/Assert/Functions.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\
           }msx, $opts_str;
       my %opts;
       foreach (@opts) {
-          my ( $key, $val ) = split qr/=/msx;
+          my ( $key, $val ) = split qr{
+          [[:space:]]{0,} [=] [[:space:]]{0,}
+          }msx;
+          $val        = $val // 1;
+          $val        = 1 if ( $val eq 'true'  || $val eq 'True'  || $val eq '1' );
+          $val        = 0 if ( $val eq 'false' || $val eq 'False' || $val eq '0' );
           $opts{$key} = $val;
       }
       return \%opts;
+  }
+  
+  # create an error message (exception) from the three elements: err, line and filepath.
+  sub _create_error_msg {
+      my ( $err, $line, $filepath ) = @_;
+      if ( !$err ) {
+          croak 'Parameter error: missing parameter \'err\'';
+      }
+      if ( !$line && $filepath ) {
+          croak 'Parameter error: missing parameter \'line\'';
+      }
+      return "${err}!" . ( defined $line ? " line ${line}" : q{} ) . ( defined $filepath ? " file '${filepath}'" : q{} );
   }
   
   =head1 DEPENDENCIES
@@ -4439,7 +4501,7 @@ use open ':std', IO => ':encoding(UTF-8)';
 
 # PODNAME: envassert
 
-our $VERSION = '0.017';
+our $VERSION = '0.018';
 
 use English      qw( -no_match_vars );                   # Avoids regex performance penalty in perl 5.18 and earlier
 use Getopt::Long qw( :config auto_version auto_help );
@@ -4482,13 +4544,13 @@ sub main {
         close $fh or croak "Cannot close file '$env_desc_filename'";
     }
 
-    my $desc = file_to_desc(@env_desc_rows);
+    my %desc = file_to_desc( $stdin ? q{STDIN} : $env_desc_filename, @env_desc_rows );
     my %parameters;
     $parameters{'break_at_first_error'} = $break_at_first_error
       if $break_at_first_error;
-    $desc->{'options'}->{'exact'} = $exact
+    $desc{'opts'}->{OPTION_ENV_EXACT} = $exact
       if defined $exact;
-    my $r = assert( \%ENV, $desc, \%parameters );
+    my $r = assert( \%ENV, \%desc, \%parameters );
     if ( !$r->{'success'} ) {
         print {*STDOUT} report_errors( $r->{'errors'} )
           or croak 'Cannot print errors to STDOUT';
@@ -4599,7 +4661,7 @@ There are three kinds of errors:
 "Variable <var_name> is missing from description"
 
 This error will only be reported if you have set
-the special option B<exact>. See below.
+the special option B<env:exact>. See below.
 
 =back
 
@@ -4612,11 +4674,11 @@ similar to a F<.env> file.
 =head3 F<.envdesc> Format
 
 In F<.envdesc> file there is only environment variables, comments
-or empty rows.
+meta commands or empty rows.
 Example:
 
     # Required env
-    ## envassert (opts: exact=1)
+    ## envassert (opts: env:exact)
     FILENAME=^[[:word:]]{1,}$
 
 Env var name is followed by a regular expression. The regexp is
@@ -4634,11 +4696,26 @@ Supported options:
 
 =over 8
 
-=item exact
+=item env:exact, default: 0
 
-The option I<exact> means that all allowed env variables
+The option I<env:exact> means that all allowed env variables
 are described in this file. Any unknown env var causes an error
 when verifying.
+
+By default, this option if off (false).
+
+=item var:required, default: 1
+
+The option I<var:required> means that the next environment
+variable defined is required. This is the default assumption.
+If you set this to "0", the next var definition will became optional.
+If the variable is present in the current environment,
+its content will be checked. If it is not present, it will not be checked.
+
+This is also applies to situation when B<env:exact> is true.
+If the variable is missing, it is will not cause an error.
+
+By default, this option if on (true).
 
 =back
 
