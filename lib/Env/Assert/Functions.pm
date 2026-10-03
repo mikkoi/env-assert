@@ -20,49 +20,49 @@ our $VERSION = '0.017';
 
 use Exporter 'import';
 our @EXPORT_OK = qw(
-    assert
-    report_errors
-    file_to_desc
-    ENV_ASSERT_MISSING_FROM_ENVIRONMENT
-    ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
-    ENV_ASSERT_MISSING_FROM_DEFINITION
+  assert
+  report_errors
+  file_to_desc
+  ENV_ASSERT_MISSING_FROM_ENVIRONMENT
+  ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
+  ENV_ASSERT_MISSING_FROM_DEFINITION
 );
 our %EXPORT_TAGS = (
     'all' => [
         qw(
-            assert
-            report_errors
-            file_to_desc
-            ENV_ASSERT_MISSING_FROM_ENVIRONMENT
-            ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
-            ENV_ASSERT_MISSING_FROM_DEFINITION
+          assert
+          report_errors
+          file_to_desc
+          ENV_ASSERT_MISSING_FROM_ENVIRONMENT
+          ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
+          ENV_ASSERT_MISSING_FROM_DEFINITION
         )
     ],
     'constants' => [
         qw(
-            ENV_ASSERT_MISSING_FROM_ENVIRONMENT
-            ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
-            ENV_ASSERT_MISSING_FROM_DEFINITION
+          ENV_ASSERT_MISSING_FROM_ENVIRONMENT
+          ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE
+          ENV_ASSERT_MISSING_FROM_DEFINITION
         )
     ],
 );
 
-use Cwd qw( abs_path );
+use Cwd     qw( abs_path );
 use English qw( -no_match_vars );
 use File::Spec;
 use IO::File;
 use English qw( -no_match_vars );    # Avoids regex performance penalty in perl 5.18 and earlier
 use Carp;
 
-use constant  {
-    ENV_ASSERT_MISSING_FROM_ENVIRONMENT => 1,
+use constant {
+    ENV_ASSERT_MISSING_FROM_ENVIRONMENT    => 1,
     ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE => 2,
-    ENV_ASSERT_MISSING_FROM_DEFINITION => 3,
+    ENV_ASSERT_MISSING_FROM_DEFINITION     => 3,
 };
 
-use constant  {
+use constant {
     DEFAULT_PARAMETER_BREAK_AT_FIRST_ERROR => 0,
-    INDENT => q{    },
+    INDENT                                 => q{    },
 };
 
 =head1 NAME
@@ -131,9 +131,9 @@ Return: hashref: { success => 1/0, errors => hashref, };
 =cut
 
 sub assert {
-    my ($env, $want, $params) = @_;
-    $params = {} if ! $params;
-    croak 'Invalid options. Not a hash' if( ref $env ne 'HASH' || ref $want ne 'HASH' );
+    my ( $env, $want, $params ) = @_;
+    $params = {} if !$params;
+    croak 'Invalid options. Not a hash' if ( ref $env ne 'HASH' || ref $want ne 'HASH' );
 
     # Set default options
     $params->{'break_at_first_error'} //= DEFAULT_PARAMETER_BREAK_AT_FIRST_ERROR;
@@ -142,41 +142,40 @@ sub assert {
     my %errors;
     my $vars = $want->{'variables'};
     my $opts = $want->{'options'};
-    foreach my $var_name (keys %{ $vars }) {
-        my $env_var = $vars->{$var_name};
-        my $required = $env_var->{'required'}//1;
-        my $regexp = $env_var->{'regexp'}//q{.*};
-        if( ( $opts->{'exact'} || $required ) && ! defined $env->{$var_name} ) {
+    foreach my $var_name ( keys %{$vars} ) {
+        my $env_var  = $vars->{$var_name};
+        my $required = $env_var->{'required'} // 1;
+        my $regexp   = $env_var->{'regexp'}   // q{.*};
+        if ( ( $opts->{'exact'} || $required ) && !defined $env->{$var_name} ) {
             $success = 0;
-            $errors{'variables'}->{ $var_name } = {
-                type => ENV_ASSERT_MISSING_FROM_ENVIRONMENT,
+            $errors{'variables'}->{$var_name} = {
+                type    => ENV_ASSERT_MISSING_FROM_ENVIRONMENT,
                 message => "Variable $var_name is missing from environment",
             };
-            goto EXIT if( $params->{'break_at_first_error'} );
-        }
-        elsif( $env->{$var_name} !~ m/$regexp/msx ) {
+            goto EXIT if ( $params->{'break_at_first_error'} );
+        } elsif ( $env->{$var_name} !~ m/$regexp/msx ) {
             $success = 0;
-            $errors{'variables'}->{ $var_name } = {
-                type => ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE,
+            $errors{'variables'}->{$var_name} = {
+                type    => ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE,
                 message => "Variable $var_name has invalid content",
             };
-            goto EXIT if( $params->{'break_at_first_error'} );
+            goto EXIT if ( $params->{'break_at_first_error'} );
         }
     }
-    if( $opts->{'exact'} ) {
-        foreach my $var_name (keys %{ $env }) {
-            if( ! exists $vars->{ $var_name } ) {
+    if ( $opts->{'exact'} ) {
+        foreach my $var_name ( keys %{$env} ) {
+            if ( !exists $vars->{$var_name} ) {
                 $success = 0;
-                $errors{'variables'}->{ $var_name } = {
-                    type => ENV_ASSERT_MISSING_FROM_DEFINITION,
+                $errors{'variables'}->{$var_name} = {
+                    type    => ENV_ASSERT_MISSING_FROM_DEFINITION,
                     message => "Variable $var_name is missing from description",
                 };
-                goto EXIT if( $params->{'break_at_first_error'} );
+                goto EXIT if ( $params->{'break_at_first_error'} );
             }
         }
     }
 
-    EXIT:
+  EXIT:
     return { success => $success, errors => \%errors, };
 }
 
@@ -190,11 +189,10 @@ sub report_errors {
     my ($errors) = @_;
     my $out = q{};
     $out .= sprintf "Environment Assert: ERRORS:\n";
-    foreach my $error_area_name (sort keys %{ $errors }) {
+    foreach my $error_area_name ( sort keys %{$errors} ) {
         $out .= sprintf "%s%s:\n", INDENT, $error_area_name;
-        foreach my $error_key (sort keys %{ $errors->{$error_area_name} }) {
-            $out .= sprintf "%s%s: %s\n", INDENT . INDENT, $error_key,
-                $errors->{$error_area_name}->{$error_key}->{'message'};
+        foreach my $error_key ( sort keys %{ $errors->{$error_area_name} } ) {
+            $out .= sprintf "%s%s: %s\n", INDENT . INDENT, $error_key, $errors->{$error_area_name}->{$error_key}->{'message'};
         }
     }
     return $out;
@@ -210,9 +208,9 @@ sub file_to_desc {
     my @rows = @_;
     my %desc = ( 'options' => {}, 'variables' => {}, );
     foreach (@rows) {
-        # This is envassert meta command
+
         ## no critic (RegularExpressions::ProhibitComplexRegexes)
-        if(
+        if (    # This is envassert meta command
             m{
             ^ [[:space:]]{0,} [#]{2}
             [[:space:]]{1,} envassert [[:space:]]{1,}
@@ -221,32 +219,21 @@ sub file_to_desc {
             }msx
         ) {
             my $opts = _interpret_opts( $LAST_PAREN_MATCH{opts} );
-            foreach ( keys %{ $opts } ) {
+            foreach ( keys %{$opts} ) {
                 $desc{'options'}->{$_} = $opts->{$_};
             }
-        } elsif(
-            # This is comment row
-            m{
-                ^ [[:space:]]{0,} [#]{1} .* $
-            }msx
+        } elsif (    # This is comment row
+            m{ ^ [[:space:]]{0,} [#]{1} .* $ }msx
         ) {
-            1;
-        } elsif(
-            # This is empty row
-            m{
-                ^ [[:space:]]{0,} $
-            }msx
+            1;       # Just move to the next row
+        } elsif (    # This is empty row
+            m{ ^ [[:space:]]{0,} $ }msx
         ) {
-            1;
-        } elsif(
-            # This is env var description
-            m{
-                ^ (?<name> [^=]{1,}) = (?<value> .*) $
-            }msx
+            1;       # Just move to the next row
+        } elsif (    # This is env var description
+            m{ ^ (?<name> [^=]{1,}) = (?<value> .*) $ }msx
         ) {
-            $desc{'variables'}->{ $LAST_PAREN_MATCH{name} } = {
-                regexp => $LAST_PAREN_MATCH{value}
-            };
+            $desc{'variables'}->{ $LAST_PAREN_MATCH{name} } = { regexp => $LAST_PAREN_MATCH{value} };
         }
     }
     return \%desc;
@@ -258,11 +245,10 @@ sub _interpret_opts {
     my ($opts_str) = @_;
     my @opts = split qr{
         [[:space:]]{0,} [,] [[:space:]]{0,}
-        }msx,
-    $opts_str;
+        }msx, $opts_str;
     my %opts;
     foreach (@opts) {
-        my ($key, $val) = split qr/=/msx;
+        my ( $key, $val ) = split qr/=/msx;
         $opts{$key} = $val;
     }
     return \%opts;
