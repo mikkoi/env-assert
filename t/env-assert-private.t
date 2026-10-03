@@ -39,11 +39,25 @@ subtest_streamed 'Private Subroutine _interpret_opts()' => sub {
     }
 
     {
+        # Key alone is treated as a boolean setting
         my $opts_str = 'exact=1,234';
         my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
         my %expected = (
             exact => 1,
-            234   => undef
+            234   => 1,
+        );
+        T2->is( $opts, \%expected, 'Read options successfully' );
+    }
+
+    {
+        # Key alone is treated as a boolean setting
+        my $opts_str = 'exact=1, some_true, other_true, other_false=0';
+        my $opts     = Env::Assert::Functions::_interpret_opts($opts_str);
+        my %expected = (
+            exact       => 1,
+            some_true   => 1,
+            other_true  => 1,
+            other_false => 0,
         );
         T2->is( $opts, \%expected, 'Read options successfully' );
     }
