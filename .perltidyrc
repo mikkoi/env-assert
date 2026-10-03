@@ -2,3 +2,5 @@
 --maximum-line-length=132
 --trim-pod
 --cuddled-else
+--no-brace-left-and-indent
+--cuddled-paren-brace
