@@ -148,14 +148,18 @@ sub assert {
         my $env_var  = $vars->{$var_name};
         my $required = $env_var->{'required'} // DEFAULT_REQUIRED;
         my $regexp   = $env_var->{'regexp'}   // DEFAULT_REGEXP_ANY;
-        if ( ( $opts->{'exact'} || $required ) && !defined $env->{$var_name} ) {
+        if (    # If var is required we must have it or error
+            $required && !defined $env->{$var_name}
+        ) {
             $success = 0;
             $errors{'variables'}->{$var_name} = {
                 type    => ENV_ASSERT_MISSING_FROM_ENVIRONMENT,
                 message => "Variable $var_name is missing from environment",
             };
             goto EXIT if ( $params->{'break_at_first_error'} );
-        } elsif ( $env->{$var_name} !~ m/$regexp/msx ) {
+        } elsif (    # if var is not required but it exists, it must match wanted regexp
+            defined $env->{$var_name} && $env->{$var_name} !~ m/$regexp/msx
+        ) {
             $success = 0;
             $errors{'variables'}->{$var_name} = {
                 type    => ENV_ASSERT_INVALID_CONTENT_IN_VARIABLE,

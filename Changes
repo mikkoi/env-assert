@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Bugfix: required var must be in env regardless of param exact value.
             * Add DEFAULT_* constants.
             * Add Perl::Tidy to DevelopSuggests and add tidy exceptions.
             * Make tidy t/env-assert-public-assert.t.
