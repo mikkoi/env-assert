@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Add file `tags` to MANIFEST.SKIP.
             * Add Maintainer Succession policy.
             * Raise policies AIDisclosure and Contributing to version 1.1.
 
