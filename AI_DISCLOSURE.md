@@ -82,12 +82,12 @@ with a mix of both.
 Contributors to this project are expected to:
 
 - Disclose if they have used AI tools in preparing their contribution.
-- Ensure all submitted code has been reviewed, understood, and tested
-  by the contributor.
+- Ensure all submitted code, documentation and other AI output
+  has been reviewed, understood, and tested by the contributor.
 - Not submit raw, unreviewed AI output.
 - Consider the ethical implications of their choice of AI tools,
-  particularly regarding how the tool's model was trained and whether
-  its data sourcing practices are consistent with respect for
+  particularly regarding how the tools' models were trained and whether
+  their data sourcing practices are consistent with respect for
   creators and rights holders.
 - Be prepared to identify which AI tools were used if asked.
 
