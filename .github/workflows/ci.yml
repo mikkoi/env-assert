@@ -44,7 +44,7 @@ jobs:
       - id: download-artifact
         # Download the artifact that was uploaded in earlier step.
         name: Download Build
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: build_dir
           path: .
