@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Update software policies.
             * Add Perl::Critic::Community policy to suggested prereqs.
             * Add file `tags` to MANIFEST.SKIP.
             * Add Maintainer Succession policy.

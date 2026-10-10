@@ -44,9 +44,8 @@ If there is a `tidyall.ini` file, you can also install Code::TidyAll and run
 This project uses AI-assisted development tools. If you also use AI tools
 when preparing your contribution, please note the following:
 
-- Disclose that you have used AI tools.
-  This is best done on commit level, for example, with a
-  "Co-Authored-By:" field or similar note.
+- Disclose that you have used AI tools in the commit message and pull request.
+  For commits, use an "AI-assisted-by: <tool name>" trailer.
 - Review, understand, and test all AI-generated code, documentation
   and other output before submitting.
 - Do not submit raw, unreviewed AI output.
