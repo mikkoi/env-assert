@@ -28,7 +28,7 @@ jobs:
       - id: upload-artifact
         # Upload artifact to a GitHub Actions "storage".
         name: Upload Build
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: build_dir
           path: build_dir
