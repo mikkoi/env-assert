@@ -17,7 +17,7 @@ jobs:
 
       - id: setup-strawberry-perl
         name: Setup Strawberry Perl
-        uses: shogo82148/actions-setup-perl@v1.44.0
+        uses: shogo82148/actions-setup-perl@v1.44.1
         with:
           perl-version: '5.42'
           distribution: strawberry # Critical for Windows compatibility
