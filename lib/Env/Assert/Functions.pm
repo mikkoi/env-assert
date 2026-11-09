@@ -61,7 +61,7 @@ use English qw( -no_match_vars );
 use File::Spec;
 use IO::File;
 use English qw( -no_match_vars );    # Avoids regex performance penalty in perl 5.18 and earlier
-use Carp;
+use Carp qw( croak );
 
 use constant {
     ENV_ASSERT_MISSING_FROM_ENVIRONMENT    => 1,

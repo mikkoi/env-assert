@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+            * Add Perl::Critic::StricterSubs to DevelopSuggests.
             * Remove .github/workflows/perltest.yml.
             * Update software policies.
             * Add Perl::Critic::Community policy to suggested prereqs.

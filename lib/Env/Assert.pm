@@ -13,12 +13,11 @@ our $VERSION = '0.019';
 # this is the point (when `use Env::Assert` is called)
 # when we do our magic.
 
-use Carp;
-
+use Carp qw( croak );
 use English qw( -no_match_vars );    # Avoids regex performance penalty in perl 5.18 and earlier
 use open ':std', IO => ':encoding(UTF-8)';
 
-use Env::Assert::Functions qw( :all );
+use Env::Assert::Functions qw( assert report_errors file_to_desc );
 
 use constant { ENV_DESC_FILENAME => '.envdesc', };
 
