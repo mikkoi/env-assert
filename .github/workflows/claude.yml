@@ -4,7 +4,8 @@ name: Claude AI Pull Request Reviewer
 # CI Claude gets no project context (CLAUDE.md is not in git).
 # Auth: GITHUB_TOKEN (not the Claude GitHub App), so the job permissions below
 # are the real limit. contents: read -> Claude can comment but cannot push.
-# Fork and Dependabot PRs get no secrets on these events and will not run.
+# Fork PR review events lack secrets; trusted issue_comment mentions can run
+# reviews on fork and Dependabot PRs with base-repository secrets and permissions.
 on:
   issue_comment:
     types: [created]
